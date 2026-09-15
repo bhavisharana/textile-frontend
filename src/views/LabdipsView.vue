@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import Header from '../components/Header.vue'
 import Sidebar from '../components/Sidebar.vue'
 import Footer from '../components/Footer.vue'
+import LabdipFormModal from '../components/Labdip/LabdipFormModal.vue'
 import { useLabdipStore, type Labdip } from '../stores/labdip'
 import { useQualityStore } from '../stores/quality'
 
@@ -10,117 +11,27 @@ const labdipStore = useLabdipStore()
 const qualityStore = useQualityStore()
 
 const isModalOpen = ref(false)
-const isEditing = ref(false)
-const editingId = ref<number | null>(null)
-
-const statusOptions = ['Pending', 'In Progress', 'Approved', 'Rejected']
-
-const form = ref({
-  labdip_no: '',
-  party_name: '',
-  status: 'Pending',
-  quality_id: null as number | null,
-  quality_name: '',
-  color_name: '',
-  received_date: '',
-  sending_date: '',
-  remarks: '',
-})
-
-const formError = ref<string | null>(null)
+const selectedLabdip = ref<Labdip | null>(null)
 
 onMounted(() => {
   labdipStore.fetchLabdips()
   qualityStore.fetchQualities()
 })
 
-// Auto-fill quality_name when quality_id is selected from dropdown
-watch(() => form.value.quality_id, (newVal) => {
-  if (newVal) {
-    const selected = qualityStore.qualities.find((q) => q.id === Number(newVal))
-    if (selected) {
-      form.value.quality_name = selected.quality_name
-    }
-  }
-})
-
 function openAddModal() {
-  isEditing.value = false
-  editingId.value = null
-  form.value = {
-    labdip_no: '',
-    party_name: '',
-    status: 'Pending',
-    quality_id: null,
-    quality_name: '',
-    color_name: '',
-    received_date: new Date().toISOString().split('T')[0],
-    sending_date: '',
-    remarks: '',
-  }
-  formError.value = null
+  selectedLabdip.value = null
   isModalOpen.value = true
 }
 
-function formatDateForInput(dateStr?: string): string {
-  if (!dateStr) return ''
-  return new Date(dateStr).toISOString().split('T')[0]
-}
-
 function openEditModal(labdip: Labdip) {
-  isEditing.value = true
-  editingId.value = labdip.id
-  form.value = {
-    labdip_no: labdip.labdip_no,
-    party_name: labdip.party_name,
-    status: labdip.status,
-    quality_id: labdip.quality_id || null,
-    quality_name: labdip.quality_name,
-    color_name: labdip.color_name,
-    received_date: formatDateForInput(labdip.received_date),
-    sending_date: formatDateForInput(labdip.sending_date),
-    remarks: labdip.remarks || '',
-  }
-  formError.value = null
+  selectedLabdip.value = labdip
   isModalOpen.value = true
 }
 
 function closeModal() {
   isModalOpen.value = false
+  selectedLabdip.value = null
 }
-
-async function handleSubmit() {
-  if (!form.value.labdip_no.trim() || !form.value.party_name.trim() || !form.value.quality_name.trim() || !form.value.color_name.trim()) {
-    formError.value = 'Please fill out all required fields (Labdip No, Party Name, Quality Name, Color Name)'
-    return
-  }
-
-  const payload = {
-    labdip_no: form.value.labdip_no,
-    party_name: form.value.party_name,
-    status: form.value.status,
-    quality_id: form.value.quality_id ? Number(form.value.quality_id) : null,
-    quality_name: form.value.quality_name,
-    color_name: form.value.color_name,
-    received_date: form.value.received_date || null,
-    sending_date: form.value.sending_date || null,
-    remarks: form.value.remarks,
-  }
-
-  let success = false
-  if (isEditing.value && editingId.value) {
-    success = await labdipStore.updateLabdip(editingId.value, payload)
-  } else {
-    success = await labdipStore.createLabdip(payload)
-  }
-
-  if (success) {
-    closeModal()
-  } else {
-    formError.value = labdipStore.error || 'Operation failed'
-  }
-}
-
 
 function getStatusClass(status: string) {
   switch (status) {
@@ -227,125 +138,12 @@ function getStatusClass(status: string) {
     </div>
     <Footer />
 
-    <!-- Add/Edit Modal Form -->
-    <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
-      <div class="modal-card">
-        <div class="modal-header">
-          <h2>{{ isEditing ? 'Edit Labdip Entry' : 'Create New Labdip Entry' }}</h2>
-          <button class="btn-close" @click="closeModal">&times;</button>
-        </div>
-
-        <form @submit.prevent="handleSubmit" class="modal-form">
-          <div v-if="formError" class="alert alert-error">
-            <span>{{ formError }}</span>
-          </div>
-
-          <div class="form-grid">
-            <!-- Labdip No -->
-            <div class="form-group">
-              <label for="labdip_no">Labdip No *</label>
-              <input
-                id="labdip_no"
-                v-model="form.labdip_no"
-                type="text"
-                placeholder="e.g. LD-2026-001"
-                required
-              />
-            </div>
-
-            <!-- Party Name -->
-            <div class="form-group">
-              <label for="party_name">Party Name *</label>
-              <input
-                id="party_name"
-                v-model="form.party_name"
-                type="text"
-                placeholder="e.g. Acme Textile Traders"
-                required
-              />
-            </div>
-
-            <!-- Status -->
-            <div class="form-group">
-              <label for="status">Status *</label>
-              <select id="status" v-model="form.status" required>
-                <option v-for="opt in statusOptions" :key="opt" :value="opt">{{ opt }}</option>
-              </select>
-            </div>
-
-            <!-- Quality Selection / Name -->
-            <div class="form-group">
-              <label for="quality_select">Quality Name *</label>
-              <div class="quality-select-wrapper">
-                <select id="quality_select" v-model="form.quality_id">
-                  <option :value="null">-- Select from Master or Custom --</option>
-                  <option v-for="q in qualityStore.qualities" :key="q.id" :value="q.id">
-                    {{ q.quality_name }} ({{ q.code }})
-                  </option>
-                </select>
-                <input
-                  v-model="form.quality_name"
-                  type="text"
-                  placeholder="Or enter Quality Name manually"
-                  required
-                />
-              </div>
-            </div>
-
-            <!-- Color Name -->
-            <div class="form-group">
-              <label for="color_name">Color Name *</label>
-              <input
-                id="color_name"
-                v-model="form.color_name"
-                type="text"
-                placeholder="e.g. Navy Blue / Shade #4B"
-                required
-              />
-            </div>
-
-            <!-- Received Date -->
-            <div class="form-group">
-              <label for="received_date">Received Date</label>
-              <input
-                id="received_date"
-                v-model="form.received_date"
-                type="date"
-              />
-            </div>
-
-            <!-- Sending Date -->
-            <div class="form-group">
-              <label for="sending_date">Sending Date</label>
-              <input
-                id="sending_date"
-                v-model="form.sending_date"
-                type="date"
-              />
-            </div>
-
-            <!-- Remarks -->
-            <div class="form-group full-width">
-              <label for="remarks">Remarks</label>
-              <textarea
-                id="remarks"
-                v-model="form.remarks"
-                rows="3"
-                placeholder="Enter any additional notes or instructions..."
-              ></textarea>
-            </div>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn-secondary" @click="closeModal">Cancel</button>
-            <button type="submit" class="btn-primary" :disabled="labdipStore.loading">
-              <span v-if="labdipStore.loading" class="spinner"></span>
-              <span v-else>{{ isEditing ? 'Update Entry' : 'Save Labdip Entry' }}</span>
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <!-- Add/Edit Modal Form Component -->
+    <LabdipFormModal
+      v-model:is-open="isModalOpen"
+      :labdip="selectedLabdip"
+      @close="closeModal"
+    />
   </div>
 </template>
 
@@ -606,124 +404,6 @@ function getStatusClass(status: string) {
   border-radius: 8px;
   font-size: 0.875rem;
   margin-bottom: 20px;
-}
-
-/* Modal Styles */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  padding: 20px;
-}
-
-.modal-card {
-  background: #ffffff;
-  border-radius: 16px;
-  width: 100%;
-  max-width: 640px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.modal-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.modal-header h2 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-}
-
-.btn-close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  color: #94a3b8;
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-}
-
-.btn-close:hover {
-  color: #0f172a;
-}
-
-.modal-form {
-  padding: 24px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-group.full-width {
-  grid-column: span 2;
-}
-
-.form-group label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #334155;
-}
-
-.form-group input,
-.form-group select,
-.form-group textarea {
-  padding: 10px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  color: #0f172a;
-  outline: none;
-  transition: all 0.2s ease;
-  background: #ffffff;
-}
-
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
-}
-
-.quality-select-wrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.modal-footer {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 12px;
 }
 
 .spinner {
