@@ -4,6 +4,7 @@ import Header from '../components/Header.vue'
 import Sidebar from '../components/Sidebar.vue'
 import Footer from '../components/Footer.vue'
 import LabdipFormModal from '../components/Labdip/LabdipFormModal.vue'
+import OrderFormModal from '../components/Order/OrderFormModal.vue'
 import { useLabdipStore, type Labdip } from '../stores/labdip'
 import { useQualityStore } from '../stores/quality'
 
@@ -12,6 +13,9 @@ const qualityStore = useQualityStore()
 
 const isModalOpen = ref(false)
 const selectedLabdip = ref<Labdip | null>(null)
+
+const isOrderModalOpen = ref(false)
+const selectedLabdipForOrder = ref<Labdip | null>(null)
 
 onMounted(() => {
   labdipStore.fetchLabdips()
@@ -28,9 +32,19 @@ function openEditModal(labdip: Labdip) {
   isModalOpen.value = true
 }
 
+function openCreateOrderModal(labdip: Labdip) {
+  selectedLabdipForOrder.value = labdip
+  isOrderModalOpen.value = true
+}
+
 function closeModal() {
   isModalOpen.value = false
   selectedLabdip.value = null
+}
+
+function closeOrderModal() {
+  isOrderModalOpen.value = false
+  selectedLabdipForOrder.value = null
 }
 
 function getStatusClass(status: string) {
@@ -120,6 +134,19 @@ function getStatusClass(status: string) {
                     <td class="text-muted remarks-cell">{{ item.remarks || '-' }}</td>
                     <td class="text-right">
                       <div class="action-buttons">
+                        <!-- Create Order Button (Only for Approved status) -->
+                        <button
+                          v-if="item.status === 'Approved'"
+                          class="btn-icon btn-icon-order"
+                          title="Create Order for this Approved Labdip"
+                          @click="openCreateOrderModal(item)"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="9" cy="21" r="1"></circle>
+                            <circle cx="20" cy="21" r="1"></circle>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                          </svg>
+                        </button>
                         <button class="btn-icon btn-icon-edit" title="Edit" @click="openEditModal(item)">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
@@ -143,6 +170,13 @@ function getStatusClass(status: string) {
       v-model:is-open="isModalOpen"
       :labdip="selectedLabdip"
       @close="closeModal"
+    />
+
+    <!-- Order Creation Modal Component for Approved Labdip -->
+    <OrderFormModal
+      v-model:is-open="isOrderModalOpen"
+      :labdip="selectedLabdipForOrder"
+      @close="closeOrderModal"
     />
   </div>
 </template>
@@ -170,7 +204,6 @@ function getStatusClass(status: string) {
 }
 
 .page-container {
-  max-width: 1280px;
   margin: 0 auto;
 }
 
@@ -376,6 +409,17 @@ function getStatusClass(status: string) {
   background: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.btn-icon-order {
+  color: #059669;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.btn-icon-order:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
 }
 
 .btn-icon-edit {

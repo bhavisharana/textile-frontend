@@ -3,39 +3,39 @@ import { ref, onMounted } from 'vue'
 import Header from '../components/Header.vue'
 import Sidebar from '../components/Sidebar.vue'
 import Footer from '../components/Footer.vue'
-import { useQualityStore, type Quality } from '../stores/quality'
+import { usePartyStore, type Party } from '../stores/party'
 
-const qualityStore = useQualityStore()
+const partyStore = usePartyStore()
 
 const isModalOpen = ref(false)
 const isEditing = ref(false)
 const editingId = ref<number | null>(null)
 
 const form = ref({
-  quality_name: '',
+  name: '',
   code: '',
 })
 
 const formError = ref<string | null>(null)
 
 onMounted(() => {
-  qualityStore.fetchQualities()
+  partyStore.fetchParties()
 })
 
 function openAddModal() {
   isEditing.value = false
   editingId.value = null
-  form.value = { quality_name: '', code: '' }
+  form.value = { name: '', code: '' }
   formError.value = null
   isModalOpen.value = true
 }
 
-function openEditModal(quality: Quality) {
+function openEditModal(party: Party) {
   isEditing.value = true
-  editingId.value = quality.id
+  editingId.value = party.id
   form.value = {
-    quality_name: quality.quality_name,
-    code: quality.code,
+    name: party.name,
+    code: party.code,
   }
   formError.value = null
   isModalOpen.value = true
@@ -46,20 +46,20 @@ function closeModal() {
 }
 
 async function handleSubmit() {
-  if (!form.value.quality_name.trim() || !form.value.code.trim()) {
-    formError.value = 'Please enter both Quality Name and Code'
+  if (!form.value.name.trim() || !form.value.code.trim()) {
+    formError.value = 'Please enter both Party Name and Code'
     return
   }
 
   let success = false
   if (isEditing.value && editingId.value) {
-    success = await qualityStore.updateQuality(editingId.value, {
-      quality_name: form.value.quality_name,
+    success = await partyStore.updateParty(editingId.value, {
+      name: form.value.name,
       code: form.value.code,
     })
   } else {
-    success = await qualityStore.createQuality({
-      quality_name: form.value.quality_name,
+    success = await partyStore.createParty({
+      name: form.value.name,
       code: form.value.code,
     })
   }
@@ -67,10 +67,15 @@ async function handleSubmit() {
   if (success) {
     closeModal()
   } else {
-    formError.value = qualityStore.error || 'Operation failed'
+    formError.value = partyStore.error || 'Operation failed'
   }
 }
 
+async function handleDelete(id: number) {
+  if (confirm('Are you sure you want to delete this party?')) {
+    await partyStore.deleteParty(id)
+  }
+}
 </script>
 
 <template>
@@ -83,39 +88,40 @@ async function handleSubmit() {
           <!-- Page Header -->
           <div class="page-header">
             <div>
-              <h1 class="page-title">Quality Master</h1>
-              <p class="page-subtitle">Manage fabric qualities and quality codes</p>
+              <h1 class="page-title">Party Master</h1>
+              <p class="page-subtitle">Manage client and vendor party profiles & unique codes</p>
             </div>
             <button class="btn-primary" @click="openAddModal">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="12" y1="5" x2="12" y2="19"></line>
                 <line x1="5" y1="12" x2="19" y2="12"></line>
               </svg>
-              Add Quality
+              Add Party
             </button>
           </div>
 
           <!-- Alert Error -->
-          <div v-if="qualityStore.error && !isModalOpen" class="alert alert-error">
-            <span>{{ qualityStore.error }}</span>
+          <div v-if="partyStore.error && !isModalOpen" class="alert alert-error">
+            <span>{{ partyStore.error }}</span>
           </div>
 
           <!-- Data Table Card -->
           <div class="card">
-            <div v-if="qualityStore.loading" class="loading-state">
+            <div v-if="partyStore.loading" class="loading-state">
               <div class="spinner"></div>
-              <span>Loading qualities...</span>
+              <span>Loading parties...</span>
             </div>
 
-            <div v-else-if="qualityStore.qualities.length === 0" class="empty-state">
+            <div v-else-if="partyStore.parties.length === 0" class="empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="3" y1="9" x2="21" y2="9"></line>
-                <line x1="9" y1="21" x2="9" y2="9"></line>
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
-              <h3>No Qualities Found</h3>
-              <p>Get started by adding your first quality master entry.</p>
-              <button class="btn-secondary" @click="openAddModal">Add Quality</button>
+              <h3>No Parties Found</h3>
+              <p>Get started by adding your first party entry.</p>
+              <button class="btn-secondary" @click="openAddModal">Add Party</button>
             </div>
 
             <div v-else class="table-responsive">
@@ -123,16 +129,16 @@ async function handleSubmit() {
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Quality Name</th>
+                    <th>Party Name</th>
                     <th>Code</th>
                     <th>Created At</th>
                     <th class="text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in qualityStore.qualities" :key="item.id">
+                  <tr v-for="item in partyStore.parties" :key="item.id">
                     <td><span class="id-tag">#{{ item.id }}</span></td>
-                    <td class="font-semibold">{{ item.quality_name }}</td>
+                    <td class="font-semibold">{{ item.name }}</td>
                     <td><span class="code-badge">{{ item.code }}</span></td>
                     <td class="text-muted">{{ item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A' }}</td>
                     <td class="text-right">
@@ -141,6 +147,12 @@ async function handleSubmit() {
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                          </svg>
+                        </button>
+                        <button class="btn-icon btn-icon-delete" title="Delete" @click="handleDelete(item.id)">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                           </svg>
                         </button>
                       </div>
@@ -159,7 +171,7 @@ async function handleSubmit() {
     <div v-if="isModalOpen" class="modal-overlay" @click.self="closeModal">
       <div class="modal-card">
         <div class="modal-header">
-          <h2>{{ isEditing ? 'Edit Quality' : 'Add New Quality' }}</h2>
+          <h2>{{ isEditing ? 'Edit Party' : 'Add New Party' }}</h2>
           <button class="btn-close" @click="closeModal">&times;</button>
         </div>
 
@@ -169,32 +181,32 @@ async function handleSubmit() {
           </div>
 
           <div class="form-group">
-            <label for="quality_name">Quality Name *</label>
+            <label for="party_name">Party Name *</label>
             <input
-              id="quality_name"
-              v-model="form.quality_name"
+              id="party_name"
+              v-model="form.name"
               type="text"
-              placeholder="e.g. Cotton 40s Satin"
+              placeholder="e.g. Acme Textile Traders"
               required
             />
           </div>
 
           <div class="form-group">
-            <label for="code">Quality Code *</label>
+            <label for="code">Party Code *</label>
             <input
               id="code"
               v-model="form.code"
               type="text"
-              placeholder="e.g. COT40S"
+              placeholder="e.g. ACM-001"
               required
             />
           </div>
 
           <div class="modal-footer">
             <button type="button" class="btn-secondary" @click="closeModal">Cancel</button>
-            <button type="submit" class="btn-primary" :disabled="qualityStore.loading">
-              <span v-if="qualityStore.loading" class="spinner"></span>
-              <span v-else>{{ isEditing ? 'Update Quality' : 'Create Quality' }}</span>
+            <button type="submit" class="btn-primary" :disabled="partyStore.loading">
+              <span v-if="partyStore.loading" class="spinner"></span>
+              <span v-else>{{ isEditing ? 'Update Party' : 'Create Party' }}</span>
             </button>
           </div>
         </form>
@@ -226,7 +238,6 @@ async function handleSubmit() {
 }
 
 .page-container {
-  /*max-width: 1200px;*/
   margin: 0 auto;
 }
 

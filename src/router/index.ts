@@ -4,6 +4,8 @@ import LoginView from '../views/LoginView.vue'
 import DashboardView from '../views/DashboardView.vue'
 import QualitiesView from '../views/QualitiesView.vue'
 import LabdipsView from '../views/LabdipsView.vue'
+import PartiesView from '../views/PartiesView.vue'
+import OrdersView from '../views/OrdersView.vue'
 
 const routes = [
   {
@@ -19,6 +21,12 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
+    path: '/parties',
+    name: 'Parties',
+    component: PartiesView,
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/qualities',
     name: 'Qualities',
     component: QualitiesView,
@@ -28,6 +36,12 @@ const routes = [
     path: '/labdips',
     name: 'Labdips',
     component: LabdipsView,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/orders',
+    name: 'Orders',
+    component: OrdersView,
     meta: { requiresAuth: true },
   },
   {
