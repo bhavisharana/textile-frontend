@@ -4,9 +4,11 @@ import { useRouter } from 'vue-router'
 import { useForm, useField } from 'vee-validate'
 import * as yup from 'yup'
 import { useAuthStore } from '../stores/auth'
+import { useThemeStore } from '../stores/theme'
 
 const router = useRouter()
 const authStore = useAuthStore()
+const themeStore = useThemeStore()
 
 const showPassword = ref(false)
 
@@ -50,6 +52,29 @@ const onSubmit = handleSubmit(async (values) => {
     <div class="glow-bg"></div>
     <div class="grid-overlay"></div>
 
+    <!-- Floating Theme Toggle for Login Page -->
+    <button
+      @click="themeStore.toggleTheme"
+      class="btn-login-theme-toggle"
+      :title="themeStore.theme === 'dark' ? 'Switch to Light Theme' : 'Switch to Dark Theme'"
+    >
+      <svg v-if="themeStore.theme === 'dark'" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon icon-sun">
+        <circle cx="12" cy="12" r="5"></circle>
+        <line x1="12" y1="1" x2="12" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="23"></line>
+        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+        <line x1="1" y1="12" x2="3" y2="12"></line>
+        <line x1="21" y1="12" x2="23" y2="12"></line>
+        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+      </svg>
+      <svg v-else xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="theme-icon icon-moon">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+      <span>{{ themeStore.theme === 'dark' ? 'Light Theme' : 'Dark Theme' }}</span>
+    </button>
+
     <div class="login-wrapper">
       <!-- Top Console Header -->
       <div class="console-header">
@@ -60,7 +85,8 @@ const onSubmit = handleSubmit(async (values) => {
             <path d="M10 10V8a2 2 0 0 1 4 0v2"></path>
           </svg>
         </div>
-        <h1>Admin Console</h1>
+        <h1>Textile Admin</h1>
+        <p>Sign in to access your portal</p>
       </div>
 
       <!-- Main Login Card -->
@@ -106,7 +132,7 @@ const onSubmit = handleSubmit(async (values) => {
             <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
           </div>
 
-          <!-- Gold Primary Button -->
+          <!-- Primary Button -->
           <button type="submit" class="btn-primary" :disabled="authStore.loading || isSubmitting">
             <span v-if="authStore.loading || isSubmitting" class="spinner"></span>
             <template v-else>
@@ -131,10 +157,44 @@ const onSubmit = handleSubmit(async (values) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #080c14;
+  background-color: var(--bg-main);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   overflow: hidden;
   padding: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-login-theme-toggle {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+}
+
+.btn-login-theme-toggle:hover {
+  background: var(--bg-surface);
+  transform: translateY(-1px);
+}
+
+.icon-sun {
+  color: #f59e0b;
+}
+
+.icon-moon {
+  color: #6366f1;
 }
 
 /* Ambient Radial Glow */
@@ -145,7 +205,7 @@ const onSubmit = handleSubmit(async (values) => {
   transform: translateX(-50%);
   width: 600px;
   height: 500px;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, rgba(245, 158, 11, 0.03) 45%, transparent 70%);
+  background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, rgba(99, 102, 241, 0.03) 45%, transparent 70%);
   pointer-events: none;
   z-index: 1;
 }
@@ -155,11 +215,12 @@ const onSubmit = handleSubmit(async (values) => {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
   background-size: 40px 40px;
   pointer-events: none;
   z-index: 1;
+  opacity: 0.4;
 }
 
 .login-wrapper {
@@ -185,35 +246,36 @@ const onSubmit = handleSubmit(async (values) => {
   width: 46px;
   height: 46px;
   border-radius: 12px;
-  background: rgba(245, 158, 11, 0.08);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  color: #fbbf24;
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  color: var(--primary);
   margin-bottom: 16px;
-  box-shadow: 0 0 20px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
 }
 
 .console-header h1 {
   font-size: 1.6rem;
   font-weight: 700;
-  color: #f8fafc;
+  color: var(--text-primary);
   margin: 0 0 6px 0;
   letter-spacing: -0.02em;
 }
 
 .console-header p {
   font-size: 0.875rem;
-  color: #64748b;
+  color: var(--text-muted);
   margin: 0;
 }
 
 /* Card Styling */
 .login-card {
   width: 100%;
-  background: #101622;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
   border-radius: 16px;
   padding: 28px 24px;
-  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 /* Error Alert */
@@ -246,30 +308,29 @@ const onSubmit = handleSubmit(async (values) => {
 .form-group label {
   font-size: 0.825rem;
   font-weight: 600;
-  color: #cbd5e1;
+  color: var(--text-secondary);
 }
 
 .form-group input {
   width: 100%;
   padding: 11px 14px;
   font-size: 0.9rem;
-  border: 1px solid #1e293b;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
-  background: #0a0e17;
-  color: #f8fafc;
+  background: var(--input-bg);
+  color: var(--input-text);
   outline: none;
   transition: all 0.2s ease;
   box-sizing: border-box;
 }
 
 .form-group input::placeholder {
-  color: #475569;
+  color: var(--text-muted);
 }
 
 .form-group input:focus {
-  border-color: #f59e0b;
-  background: #0d121f;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .form-group.has-error input {
@@ -291,7 +352,7 @@ const onSubmit = handleSubmit(async (values) => {
   right: 12px;
   background: none;
   border: none;
-  color: #64748b;
+  color: var(--text-muted);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -300,7 +361,7 @@ const onSubmit = handleSubmit(async (values) => {
 }
 
 .password-toggle:hover {
-  color: #cbd5e1;
+  color: var(--text-primary);
 }
 
 .error-message {
@@ -309,7 +370,7 @@ const onSubmit = handleSubmit(async (values) => {
   font-weight: 500;
 }
 
-/* Golden Primary Button */
+/* Primary Button */
 .btn-primary {
   display: flex;
   align-items: center;
@@ -319,19 +380,19 @@ const onSubmit = handleSubmit(async (values) => {
   padding: 12px;
   border-radius: 8px;
   border: none;
-  background: linear-gradient(180deg, #fcc419 0%, #f59e0b 100%);
-  color: #090d16;
+  background: var(--primary);
+  color: #ffffff;
   font-size: 0.925rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
   margin-top: 6px;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #fdd043 0%, #fbbf24 100%);
-  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.35);
+  background: var(--primary-hover);
+  box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35);
   transform: translateY(-1px);
 }
 
@@ -343,9 +404,9 @@ const onSubmit = handleSubmit(async (values) => {
 .spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(9, 13, 22, 0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  border-top-color: #090d16;
+  border-top-color: #ffffff;
   animation: spin 0.8s linear infinite;
 }
 
@@ -353,98 +414,5 @@ const onSubmit = handleSubmit(async (values) => {
   to {
     transform: rotate(360deg);
   }
-}
-
-/* Divider */
-.divider {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  margin: 20px 0;
-}
-
-.divider::before,
-.divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid #1e293b;
-}
-
-.divider span {
-  padding: 0 12px;
-  font-size: 0.725rem;
-  font-weight: 600;
-  color: #475569;
-  letter-spacing: 0.05em;
-}
-
-/* Google OAuth Button */
-.btn-google {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 11px;
-  border-radius: 8px;
-  border: 1px solid #1e293b;
-  background: #0a0e17;
-  color: #f8fafc;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-google:hover {
-  background: #141c2c;
-  border-color: #334155;
-}
-
-/* Static User Demo Helper Banner */
-.demo-fill-banner {
-  margin-top: 18px;
-  padding: 10px 12px;
-  background: rgba(245, 158, 11, 0.05);
-  border: 1px dashed rgba(245, 158, 11, 0.25);
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.775rem;
-  color: #94a3b8;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.demo-fill-banner:hover {
-  background: rgba(245, 158, 11, 0.1);
-  border-color: rgba(245, 158, 11, 0.4);
-  color: #f8fafc;
-}
-
-.demo-badge {
-  background: rgba(245, 158, 11, 0.15);
-  color: #fbbf24;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-weight: 700;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-}
-
-.demo-fill-banner code {
-  color: #fbbf24;
-  font-family: monospace;
-}
-
-/* Bottom Session Notice */
-.session-notice {
-  margin-top: 24px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  color: #475569;
-  text-transform: uppercase;
 }
 </style>

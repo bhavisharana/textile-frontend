@@ -45,7 +45,14 @@ const labdipSchema = yup.object({
 });
 
 // Vee-validate form setup
-const { handleSubmit, errors, resetForm: resetVeeForm, setValues, setFieldValue, defineField } = useForm({
+const {
+  handleSubmit,
+  errors,
+  resetForm: resetVeeForm,
+  setValues,
+  setFieldValue,
+  defineField,
+} = useForm({
   validationSchema: labdipSchema,
   initialValues: {
     labdip_no: "",
@@ -64,7 +71,6 @@ const [labdip_no, labdip_noProps] = defineField("labdip_no");
 const [party_name, party_nameProps] = defineField("party_name");
 const [status, statusProps] = defineField("status");
 const [quality_id, quality_idProps] = defineField("quality_id");
-const [quality_name, quality_nameProps] = defineField("quality_name");
 const [color_name, color_nameProps] = defineField("color_name");
 const [received_date, received_dateProps] = defineField("received_date");
 const [sending_date, sending_dateProps] = defineField("sending_date");
@@ -127,19 +133,16 @@ watch(
 );
 
 // Auto-fill quality_name when quality_id is selected from dropdown
-watch(
-  quality_id,
-  (newVal) => {
-    if (newVal) {
-      const selected = qualityStore.qualities.find(
-        (q) => q.id === Number(newVal),
-      );
-      if (selected) {
-        setFieldValue("quality_name", selected.quality_name);
-      }
+watch(quality_id, (newVal) => {
+  if (newVal) {
+    const selected = qualityStore.qualities.find(
+      (q) => q.id === Number(newVal),
+    );
+    if (selected) {
+      setFieldValue("quality_name", selected.quality_name);
     }
-  },
-);
+  }
+});
 
 function closeModal() {
   emit("update:isOpen", false);
@@ -196,14 +199,7 @@ const onSubmit = handleSubmit(async (values) => {
           <!-- Labdip No -->
           <div class="form-group">
             <label for="labdip_no">Labdip No *</label>
-            <input
-              id="labdip_no"
-              v-model="labdip_no"
-              v-bind="labdip_noProps"
-              type="text"
-              placeholder="e.g. LD-2026-001"
-              :class="{ 'input-error': errors.labdip_no }"
-            />
+            <input id="labdip_no" v-model="labdip_no" v-bind="labdip_noProps" type="text" placeholder="e.g. LD-2026-001" :class="{ 'input-error': errors.labdip_no }"/>
             <span v-if="errors.labdip_no" class="field-error">{{ errors.labdip_no }}</span>
           </div>
 
@@ -211,23 +207,11 @@ const onSubmit = handleSubmit(async (values) => {
           <div class="form-group">
             <label for="party_name">Party Name *</label>
             <div class="quality-select-wrapper">
-              <select
-                v-if="partyStore.parties.length > 0"
-                v-model="party_name"
-              >
+              <select v-if="partyStore.parties.length > 0" v-model="party_name">
                 <option value="">-- Select from Party Master or Custom --</option>
-                <option v-for="p in partyStore.parties" :key="p.id" :value="p.name">
-                  {{ p.name }} ({{ p.code }})
-                </option>
+                <option v-for="p in partyStore.parties" :key="p.id" :value="p.name">{{ p.name }} ({{ p.code }})</option>
               </select>
-              <input
-                id="party_name"
-                v-model="party_name"
-                v-bind="party_nameProps"
-                type="text"
-                placeholder="Or enter Party Name manually"
-                :class="{ 'input-error': errors.party_name }"
-              />
+              <input id="party_name" v-model="party_name" v-bind="party_nameProps" type="text" placeholder="Or enter Party Name manually" :class="{ 'input-error': errors.party_name }"/>
             </div>
             <span v-if="errors.party_name" class="field-error">{{ errors.party_name }}</span>
           </div>
@@ -235,12 +219,7 @@ const onSubmit = handleSubmit(async (values) => {
           <!-- Status -->
           <div class="form-group">
             <label for="status">Status *</label>
-            <select
-              id="status"
-              v-model="status"
-              v-bind="statusProps"
-              :class="{ 'input-error': errors.status }"
-            >
+            <select id="status" v-model="status" v-bind="statusProps" :class="{ 'input-error': errors.status }">
               <option v-for="opt in statusOptions" :key="opt" :value="opt">
                 {{ opt }}
               </option>
@@ -260,14 +239,6 @@ const onSubmit = handleSubmit(async (values) => {
                   {{ q.quality_name }} ({{ q.code }})
                 </option>
               </select>
-              <input
-                id="quality_name"
-                v-model="quality_name"
-                v-bind="quality_nameProps"
-                type="text"
-                placeholder="Or enter Quality Name manually"
-                :class="{ 'input-error': errors.quality_name }"
-              />
             </div>
             <span v-if="errors.quality_name" class="field-error">{{ errors.quality_name }}</span>
           </div>
@@ -275,49 +246,26 @@ const onSubmit = handleSubmit(async (values) => {
           <!-- Color Name -->
           <div class="form-group">
             <label for="color_name">Color Name *</label>
-            <input
-              id="color_name"
-              v-model="color_name"
-              v-bind="color_nameProps"
-              type="text"
-              placeholder="e.g. Navy Blue / Shade #4B"
-              :class="{ 'input-error': errors.color_name }"
-            />
+            <input id="color_name" v-model="color_name" v-bind="color_nameProps" type="text" placeholder="e.g. Navy Blue / Shade #4B" :class="{ 'input-error': errors.color_name }"/>
             <span v-if="errors.color_name" class="field-error">{{ errors.color_name }}</span>
           </div>
 
           <!-- Received Date -->
           <div class="form-group">
             <label for="received_date">Received Date</label>
-            <input
-              id="received_date"
-              v-model="received_date"
-              v-bind="received_dateProps"
-              type="date"
-            />
+            <input id="received_date" v-model="received_date" v-bind="received_dateProps" type="date"/>
           </div>
 
           <!-- Sending Date -->
           <div class="form-group">
             <label for="sending_date">Sending Date</label>
-            <input
-              id="sending_date"
-              v-model="sending_date"
-              v-bind="sending_dateProps"
-              type="date"
-            />
+            <input id="sending_date" v-model="sending_date" v-bind="sending_dateProps" type="date"/>
           </div>
 
           <!-- Remarks -->
           <div class="form-group full-width">
             <label for="remarks">Remarks</label>
-            <textarea
-              id="remarks"
-              v-model="remarks"
-              v-bind="remarksProps"
-              rows="3"
-              placeholder="Enter any additional notes or instructions..."
-            ></textarea>
+            <textarea id="remarks" v-model="remarks" v-bind="remarksProps" rows="3" placeholder="Enter any additional notes or instructions..."></textarea>
           </div>
         </div>
 
@@ -327,9 +275,7 @@ const onSubmit = handleSubmit(async (values) => {
           </button>
           <button type="submit" class="btn-save" :disabled="labdipStore.loading">
             <span v-if="labdipStore.loading" class="spinner"></span>
-            <span v-else>
-              {{ isEditing ? "Update Entry" : "Save Labdip Entry" }}
-            </span>
+            <span v-else>{{ isEditing ? "Update Entry" : "Save Labdip Entry" }}</span>
           </button>
         </div>
       </form>
@@ -345,7 +291,7 @@ const onSubmit = handleSubmit(async (values) => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: rgba(15, 23, 42, 0.55);
+  background-color: var(--modal-overlay);
   backdrop-filter: blur(4px);
   padding: 16px;
 }
@@ -356,10 +302,10 @@ const onSubmit = handleSubmit(async (values) => {
   max-height: 90vh;
   display: flex;
   flex-direction: column;
-  background: #ffffff;
+  background: var(--modal-bg);
   border-radius: 16px;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   overflow: hidden;
   animation: modalFadeIn 0.2s ease-out;
 }
@@ -380,20 +326,20 @@ const onSubmit = handleSubmit(async (values) => {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid #e2e8f0;
-  background: #ffffff;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--modal-bg);
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .btn-close {
   font-size: 1.75rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   background: none;
   border: none;
   cursor: pointer;
@@ -404,8 +350,8 @@ const onSubmit = handleSubmit(async (values) => {
 }
 
 .btn-close:hover {
-  color: #0f172a;
-  background: #f1f5f9;
+  color: var(--text-primary);
+  background: var(--bg-surface);
 }
 
 .modal-form {
@@ -417,23 +363,22 @@ const onSubmit = handleSubmit(async (values) => {
 }
 
 .alert-error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 0.875rem;
 }
 
 .field-error {
-  color: #dc2626;
+  color: #ef4444;
   font-size: 0.775rem;
   margin-top: 2px;
 }
 
 .input-error {
-  border-color: #fca5a5 !important;
-  background-color: #fef2f2 !important;
+  border-color: #ef4444 !important;
 }
 
 .form-grid {
@@ -461,7 +406,7 @@ const onSubmit = handleSubmit(async (values) => {
 .form-group label {
   font-size: 0.825rem;
   font-weight: 600;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .quality-select-wrapper {
@@ -476,10 +421,10 @@ const onSubmit = handleSubmit(async (values) => {
   width: 100%;
   padding: 10px 14px;
   font-size: 0.9rem;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
-  background-color: #ffffff;
-  color: #0f172a;
+  background-color: var(--input-bg);
+  color: var(--input-text);
   outline: none;
   transition: all 0.2s ease;
   font-family: inherit;
@@ -489,8 +434,8 @@ const onSubmit = handleSubmit(async (values) => {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .modal-footer {
@@ -500,14 +445,14 @@ const onSubmit = handleSubmit(async (values) => {
   gap: 12px;
   padding-top: 16px;
   margin-top: 8px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-color);
 }
 
 .btn-cancel {
   padding: 10px 20px;
-  background: #f1f5f9;
-  border: 1px solid #cbd5e1;
-  color: #475569;
+  background: var(--btn-sec-bg);
+  border: 1px solid var(--btn-sec-border);
+  color: var(--btn-sec-text);
   border-radius: 8px;
   font-weight: 600;
   font-size: 0.875rem;
@@ -516,13 +461,13 @@ const onSubmit = handleSubmit(async (values) => {
 }
 
 .btn-cancel:hover {
-  background: #e2e8f0;
-  color: #0f172a;
+  background: var(--btn-sec-hover-bg);
+  color: var(--btn-sec-hover-text);
 }
 
 .btn-save {
   padding: 10px 22px;
-  background: #4f46e5;
+  background: var(--primary);
   border: none;
   color: #ffffff;
   border-radius: 8px;
@@ -536,8 +481,8 @@ const onSubmit = handleSubmit(async (values) => {
 }
 
 .btn-save:hover:not(:disabled) {
-  background: #4338ca;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  background: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
 .btn-save:disabled {

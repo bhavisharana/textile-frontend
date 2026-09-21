@@ -6,7 +6,6 @@ const currentYear = new Date().getFullYear()
   <footer class="app-footer">
     <div class="footer-content">
       <span>&copy; {{ currentYear }} Textile Admin Portal. All rights reserved.</span>
-      <span class="version">v1.0.0</span>
     </div>
   </footer>
 </template>
@@ -14,14 +13,15 @@ const currentYear = new Date().getFullYear()
 <style scoped>
 .app-footer {
   height: 48px;
-  background: #ffffff;
-  border-top: 1px solid #e2e8f0;
+  background: var(--bg-footer);
+  border-top: 1px solid var(--border-color);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 24px;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 0.825rem;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .footer-content {
@@ -33,6 +33,6 @@ const currentYear = new Date().getFullYear()
 
 .version {
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-muted);
 }
 </style>

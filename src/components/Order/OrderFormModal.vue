@@ -273,7 +273,7 @@ async function handleSubmit() {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--modal-overlay);
   backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
@@ -283,12 +283,13 @@ async function handleSubmit() {
 }
 
 .modal-card {
-  background: #ffffff;
+  background: var(--modal-bg);
   border-radius: 16px;
   width: 100%;
   max-width: 640px;
   max-height: 90vh;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border-color);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -299,19 +300,19 @@ async function handleSubmit() {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   margin: 0;
 }
 
 .modal-subtitle {
   font-size: 0.8rem;
-  color: #64748b;
+  color: var(--text-muted);
   margin-top: 2px;
 }
 
@@ -319,14 +320,14 @@ async function handleSubmit() {
   background: none;
   border: none;
   font-size: 1.5rem;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 0;
   line-height: 1;
 }
 
 .btn-close:hover {
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .modal-form {
@@ -362,29 +363,29 @@ async function handleSubmit() {
 .form-group label {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #334155;
+  color: var(--text-secondary);
 }
 
 .form-control {
   padding: 10px 14px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--input-border);
   border-radius: 8px;
   font-size: 0.9rem;
-  color: #0f172a;
+  color: var(--input-text);
   outline: none;
   transition: all 0.2s ease;
-  background: #ffffff;
+  background: var(--input-bg);
 }
 
 .form-control[readonly] {
-  background: #f1f5f9;
-  color: #64748b;
+  background: var(--bg-surface);
+  color: var(--text-muted);
   cursor: not-allowed;
 }
 
 .form-control:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .total-banner {
@@ -392,17 +393,17 @@ async function handleSubmit() {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: #eef2ff;
-  border: 1px solid #c7d2fe;
+  background: var(--total-banner-bg);
+  border: 1px solid var(--total-banner-border);
   border-radius: 8px;
-  color: #312e81;
+  color: var(--total-banner-text);
   font-size: 0.9rem;
 }
 
 .total-amount {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #4f46e5;
+  color: var(--primary);
 }
 
 .modal-footer {
@@ -412,7 +413,7 @@ async function handleSubmit() {
   gap: 12px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--border-color);
 }
 
 .btn-primary {
@@ -420,7 +421,7 @@ async function handleSubmit() {
   align-items: center;
   gap: 8px;
   padding: 10px 18px;
-  background: #4f46e5;
+  background: var(--primary);
   color: #ffffff;
   font-weight: 600;
   font-size: 0.9rem;
@@ -431,31 +432,31 @@ async function handleSubmit() {
 }
 
 .btn-primary:hover {
-  background: #4338ca;
-  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+  background: var(--primary-hover);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
 .btn-secondary {
   padding: 10px 18px;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--btn-sec-bg);
+  color: var(--btn-sec-text);
   font-weight: 600;
   font-size: 0.9rem;
   border-radius: 8px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid var(--btn-sec-border);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: var(--btn-sec-hover-bg);
+  color: var(--btn-sec-hover-text);
 }
 
 .alert-error {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #dc2626;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
   padding: 12px 16px;
   border-radius: 8px;
   font-size: 0.875rem;

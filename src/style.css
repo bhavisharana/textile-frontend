@@ -7,6 +7,126 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  /* Design Tokens - Light Theme Default */
+  --bg-main: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-surface: #f1f5f9;
+  --bg-header: #ffffff;
+  --bg-sidebar: #0f172a;
+  --bg-sidebar-hover: #1e293b;
+  --bg-footer: #ffffff;
+  
+  --border-color: #e2e8f0;
+  --border-subtle: #f1f5f9;
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-light: #eef2ff;
+
+  --input-bg: #ffffff;
+  --input-border: #cbd5e1;
+  --input-text: #0f172a;
+
+  --modal-bg: #ffffff;
+  --modal-overlay: rgba(15, 23, 42, 0.5);
+
+  --table-th-bg: #f8fafc;
+  --table-th-text: #475569;
+  --table-td-border: #f1f5f9;
+  --table-hover: #f8fafc;
+
+  --badge-code-bg: #e0e7ff;
+  --badge-code-text: #3730a3;
+  --badge-id-text: #64748b;
+
+  --btn-sec-bg: #f1f5f9;
+  --btn-sec-border: #cbd5e1;
+  --btn-sec-text: #475569;
+  --btn-sec-hover-bg: #e2e8f0;
+  --btn-sec-hover-text: #1e293b;
+
+  --btn-icon-bg: #ffffff;
+  --btn-icon-border: #e2e8f0;
+
+  --status-pending-bg: #fef3c7;
+  --status-pending-text: #92400e;
+  --status-inprogress-bg: #e0f2fe;
+  --status-inprogress-text: #075985;
+  --status-approved-bg: #dcfce7;
+  --status-approved-text: #166534;
+  --status-rejected-bg: #fee2e2;
+  --status-rejected-text: #991b1b;
+
+  --total-banner-bg: #eef2ff;
+  --total-banner-border: #c7d2fe;
+  --total-banner-text: #312e81;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Design Tokens - Dark Theme */
+  --bg-main: #0b0f19;
+  --bg-card: #111827;
+  --bg-surface: #1f2937;
+  --bg-header: #111827;
+  --bg-sidebar: #0b0f19;
+  --bg-sidebar-hover: #1f2937;
+  --bg-footer: #111827;
+
+  --border-color: #1f2937;
+  --border-subtle: #374151;
+
+  --text-primary: #f9fafb;
+  --text-secondary: #d1d5db;
+  --text-muted: #9ca3af;
+
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-light: #1e1b4b;
+
+  --input-bg: #0b0f19;
+  --input-border: #374151;
+  --input-text: #f9fafb;
+
+  --modal-bg: #111827;
+  --modal-overlay: rgba(0, 0, 0, 0.75);
+
+  --table-th-bg: #111827;
+  --table-th-text: #9ca3af;
+  --table-td-border: #1f2937;
+  --table-hover: #1f2937;
+
+  --badge-code-bg: #1e1b4b;
+  --badge-code-text: #a5b4fc;
+  --badge-id-text: #818cf8;
+
+  --btn-sec-bg: #1f2937;
+  --btn-sec-border: #374151;
+  --btn-sec-text: #e5e7eb;
+  --btn-sec-hover-bg: #374151;
+  --btn-sec-hover-text: #ffffff;
+
+  --btn-icon-bg: #1f2937;
+  --btn-icon-border: #374151;
+
+  --status-pending-bg: #78350f;
+  --status-pending-text: #fde68a;
+  --status-inprogress-bg: #0c4a6e;
+  --status-inprogress-text: #7dd3fc;
+  --status-approved-bg: #064e3b;
+  --status-approved-text: #6ee7b7;
+  --status-rejected-bg: #7f1d1d;
+  --status-rejected-text: #fca5a5;
+
+  --total-banner-bg: #1e1b4b;
+  --total-banner-border: #3730a3;
+  --total-banner-text: #c7d2fe;
 }
 
 * {
@@ -20,11 +140,31 @@ body {
   padding: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 button {
   font-family: inherit;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
