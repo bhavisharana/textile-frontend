@@ -1,65 +1,38 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { api } from '../services/api'
-
-export interface Labdip {
-  id: number
-  labdip_no: string
-  party_name: string
-  status: string
-  quality_id?: number
-  quality_name: string
-  color_name: string
-  received_date?: string
-  sending_date?: string
-  remarks?: string
-  created_at?: string
-  updated_at?: string
-}
-
-export interface LabdipInput {
-  labdip_no: string
-  party_name: string
-  status: string
-  quality_id?: number | null
-  quality_name: string
-  color_name: string
-  received_date?: string | null
-  sending_date?: string | null
-  remarks?: string
-}
+import { labdipService } from '../services/labdip.service'
 
 export const useLabdipStore = defineStore('labdip', () => {
-  const labdips = ref<Labdip[]>([])
-  const loading = ref<boolean>(false)
-  const error = ref<string | null>(null)
+  const labdips = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
   async function fetchLabdips() {
     loading.value = true
     error.value = null
     try {
-      const response = await api.get('/labdips')
+      const response = await labdipService.getLabdips()
       if (response.data.success) {
         labdips.value = response.data.data
       }
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch labdips'
     } finally {
       loading.value = false
     }
   }
 
-  async function createLabdip(data: LabdipInput) {
+  async function createLabdip(data) {
     loading.value = true
     error.value = null
     try {
-      const response = await api.post('/labdips', data)
+      const response = await labdipService.createLabdip(data)
       if (response.data.success) {
         await fetchLabdips()
         return true
       }
       return false
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to create labdip entry'
       return false
     } finally {
@@ -67,17 +40,17 @@ export const useLabdipStore = defineStore('labdip', () => {
     }
   }
 
-  async function updateLabdip(id: number, data: LabdipInput) {
+  async function updateLabdip(id, data) {
     loading.value = true
     error.value = null
     try {
-      const response = await api.put(`/labdips/${id}`, data)
+      const response = await labdipService.updateLabdip(id, data)
       if (response.data.success) {
         await fetchLabdips()
         return true
       }
       return false
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to update labdip entry'
       return false
     } finally {
@@ -85,17 +58,17 @@ export const useLabdipStore = defineStore('labdip', () => {
     }
   }
 
-  async function deleteLabdip(id: number) {
+  async function deleteLabdip(id) {
     loading.value = true
     error.value = null
     try {
-      const response = await api.delete(`/labdips/${id}`)
+      const response = await labdipService.deleteLabdip(id)
       if (response.data.success) {
         await fetchLabdips()
         return true
       }
       return false
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to delete labdip entry'
       return false
     } finally {

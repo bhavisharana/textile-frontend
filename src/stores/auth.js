@@ -1,29 +1,23 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { api } from '../services/api'
-
-export interface User {
-  id: number
-  username: string
-}
 
 export const useAuthStore = defineStore('auth', () => {
-  const token = ref<string | null>(localStorage.getItem('token'))
-  const user = ref<User | null>(
+  const token = ref(localStorage.getItem('token'))
+  const user = ref(
     localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user') || '{}') : null
   )
-  const loading = ref<boolean>(false)
-  const error = ref<string | null>(null)
+  const loading = ref(false)
+  const error = ref(null)
 
   const isAuthenticated = computed(() => !!token.value)
 
-  async function login(credentials: { username: string; password: string }) {
+  async function login(credentials) {
     loading.value = true
     error.value = null
     try {
       const response = await api.post('/auth/login', credentials)
       if (response.data.success) {
-        const { token: tokenData, user: userData } = response.data.data
+        const { token, user } = response.data.data
         token.value = tokenData
         user.value = userData
 
@@ -34,7 +28,7 @@ export const useAuthStore = defineStore('auth', () => {
         error.value = response.data.message || 'Login failed'
         return false
       }
-    } catch (err: any) {
+    } catch (err) {
       error.value =
         err.response?.data?.message || 'Invalid credentials or server unavailable'
       return false

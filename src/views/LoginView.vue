@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useForm, useField } from 'vee-validate'
@@ -32,8 +32,8 @@ const { handleSubmit, errors, isSubmitting } = useForm({
   },
 })
 
-const { value: username } = useField<string>('username')
-const { value: password } = useField<string>('password')
+const { value: username } = useField('username')
+const { value: password } = useField('password')
 
 const onSubmit = handleSubmit(async (values) => {
   const success = await authStore.login({

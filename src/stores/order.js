@@ -1,60 +1,38 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { api } from '../services/api'
-
-export interface Order {
-  id: number
-  labdip_id?: number | null
-  labdip_no: string
-  party_name: string
-  quantity: number
-  rate: number
-  total_amount: number
-  remarks?: string
-  created_at?: string
-  updated_at?: string
-}
-
-export interface CreateOrderPayload {
-  labdip_id?: number | null
-  labdip_no: string
-  party_name: string
-  quantity: number
-  rate: number
-  remarks?: string
-}
+import { orderService } from '../services/order.service'
 
 export const useOrderStore = defineStore('order', () => {
-  const orders = ref<Order[]>([])
-  const loading = ref<boolean>(false)
-  const error = ref<string | null>(null)
+  const orders = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
-  async function fetchOrders() {
+  const fetchOrders=async()=>{
     loading.value = true
     error.value = null
     try {
-      const response = await api.get('/orders')
+      const response = await orderService.getOrders()
       if (response.data.success) {
         orders.value = response.data.data
       }
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch orders'
     } finally {
       loading.value = false
     }
   }
 
-  async function createOrder(data: CreateOrderPayload) {
+  const createOrder=async(data)=> {
     loading.value = true
     error.value = null
     try {
-      const response = await api.post('/orders', data)
+      const response = await orderService.createOrder(data)
       if (response.data.success) {
         await fetchOrders()
         return true
       }
       return false
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to create order'
       return false
     } finally {
@@ -62,17 +40,17 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  async function updateOrder(id: number, data: CreateOrderPayload) {
+  const updateOrder=async(id, data)=> {
     loading.value = true
     error.value = null
     try {
-      const response = await api.put(`/orders/${id}`, data)
+      const response = await orderService.updateOrder(id, data)
       if (response.data.success) {
         await fetchOrders()
         return true
       }
       return false
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to update order'
       return false
     } finally {
@@ -80,17 +58,17 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  async function deleteOrder(id: number) {
+  const deleteOrder=async(id)=> {
     loading.value = true
     error.value = null
     try {
-      const response = await api.delete(`/orders/${id}`)
+      const response = await orderService.deleteOrder(id)
       if (response.data.success) {
         await fetchOrders()
         return true
       }
       return false
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to delete order'
       return false
     } finally {

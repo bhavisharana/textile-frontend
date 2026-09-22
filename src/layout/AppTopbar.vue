@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { useAuthStore } from '../stores/auth'
 import { useThemeStore } from '../stores/theme'
 import { useRouter } from 'vue-router'

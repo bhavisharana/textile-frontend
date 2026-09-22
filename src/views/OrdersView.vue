@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import OrderFormModal from '../components/Order/OrderFormModal.vue'
-import { useOrderStore, type Order } from '../stores/order'
+import { useOrderStore, type Order } from '../stores/order.js'
 
 const orderStore = useOrderStore()
 

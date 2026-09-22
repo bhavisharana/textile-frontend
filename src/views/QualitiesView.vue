@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue'
-import { useQualityStore, type Quality } from '../stores/quality'
+import { useQualityStore } from '../stores/quality'
 
 const qualityStore = useQualityStore()
 
@@ -13,7 +13,7 @@ const form = ref({
   code: '',
 })
 
-const formError = ref<string | null>(null)
+const formError = ref(null)
 
 onMounted(() => {
   qualityStore.fetchQualities()
@@ -27,7 +27,7 @@ function openAddModal() {
   isModalOpen.value = true
 }
 
-function openEditModal(quality: Quality) {
+function openEditModal(quality) {
   isEditing.value = true
   editingId.value = quality.id
   form.value = {

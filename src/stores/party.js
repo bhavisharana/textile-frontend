@@ -1,46 +1,38 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { api } from '../services/api'
-
-export interface Party {
-  id: number
-  name: string
-  code: string
-  created_at?: string
-  updated_at?: string
-}
+import { partyService } from '../services/party.service'
 
 export const usePartyStore = defineStore('party', () => {
-  const parties = ref<Party[]>([])
-  const loading = ref<boolean>(false)
-  const error = ref<string | null>(null)
+  const parties = ref([])
+  const loading = ref(false)
+  const error = ref(null)
 
   async function fetchParties() {
     loading.value = true
     error.value = null
     try {
-      const response = await api.get('/parties')
+      const response = await partyService.getParties()
       if (response.data.success) {
         parties.value = response.data.data
       }
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch parties'
     } finally {
       loading.value = false
     }
   }
 
-  async function createParty(data: { name: string; code: string }) {
+  async function createParty(data) {
     loading.value = true
     error.value = null
     try {
-      const response = await api.post('/parties', data)
+      const response = await partyService.createParty(data)
       if (response.data.success) {
         await fetchParties()
         return true
       }
       return false
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to create party'
       return false
     } finally {
@@ -48,17 +40,17 @@ export const usePartyStore = defineStore('party', () => {
     }
   }
 
-  async function updateParty(id: number, data: { name: string; code: string }) {
+  async function updateParty(id, data) {
     loading.value = true
     error.value = null
     try {
-      const response = await api.put(`/parties/${id}`, data)
+      const response = await partyService.updateParty(id, data)
       if (response.data.success) {
         await fetchParties()
         return true
       }
       return false
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to update party'
       return false
     } finally {
@@ -66,17 +58,17 @@ export const usePartyStore = defineStore('party', () => {
     }
   }
 
-  async function deleteParty(id: number) {
+  async function deleteParty(id) {
     loading.value = true
     error.value = null
     try {
-      const response = await api.delete(`/parties/${id}`)
+      const response = await partyService.deleteParty(id)
       if (response.data.success) {
         await fetchParties()
         return true
       }
       return false
-    } catch (err: any) {
+    } catch (err) {
       error.value = err.response?.data?.message || 'Failed to delete party'
       return false
     } finally {

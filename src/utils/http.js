@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8081/api'
 
-export const api = axios.create({
+export const http = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -10,7 +10,7 @@ export const api = axios.create({
 })
 
 // Request interceptor to attach JWT token
-api.interceptors.request.use(
+http.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -22,7 +22,7 @@ api.interceptors.request.use(
 )
 
 // Response interceptor to handle unauthenticated 401
-api.interceptors.response.use(
+http.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
@@ -35,3 +35,5 @@ api.interceptors.response.use(
     return Promise.reject(error)
   }
 )
+
+export default http

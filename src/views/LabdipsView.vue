@@ -1,9 +1,9 @@
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue'
 import LabdipFormModal from '../components/Labdip/LabdipFormModal.vue'
 import OrderFormModal from '../components/Order/OrderFormModal.vue'
-import { useLabdipStore, type Labdip } from '../stores/labdip'
-import { useQualityStore } from '../stores/quality'
+import { useLabdipStore } from '../stores/labdip.js'
+import { useQualityStore } from '../stores/quality.js'
 
 const labdipStore = useLabdipStore()
 const qualityStore = useQualityStore()
@@ -19,17 +19,17 @@ onMounted(() => {
   qualityStore.fetchQualities()
 })
 
-function openAddModal() {
+const openAddModal=()=> {
   selectedLabdip.value = null
   isModalOpen.value = true
 }
 
-function openEditModal(labdip: Labdip) {
+const openEditModal=(labdip)=> {
   selectedLabdip.value = labdip
   isModalOpen.value = true
 }
 
-function openCreateOrderModal(labdip: Labdip) {
+const openCreateOrderModal=(labdip)=> {
   selectedLabdipForOrder.value = labdip
   isOrderModalOpen.value = true
 }
@@ -44,7 +44,7 @@ function closeOrderModal() {
   selectedLabdipForOrder.value = null
 }
 
-function getStatusClass(status: string) {
+function getStatusClass(status) {
   switch (status) {
     case 'Approved':
       return 'status-approved'
