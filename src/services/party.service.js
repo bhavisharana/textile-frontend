@@ -17,12 +17,12 @@ export const partyService = {
     },
 
     async updateParty(id, data) {
-        const response = await http.put(`/parties/${id}`, data);
+        const response = await http.post(`/parties/${id}/update`, data);
         return response.data;
     },
 
     async deleteParty(id) {
-        const response = await http.delete(`/parties/${id}`);
+        const response = await http.post(`/parties/${id}/delete`);
         return response.data;
     },
 }

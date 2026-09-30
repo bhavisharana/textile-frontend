@@ -12,8 +12,8 @@ export const useLabdipStore = defineStore('labdip', () => {
     error.value = null
     try {
       const response = await labdipService.getLabdips()
-      if (response.data.success) {
-        labdips.value = response.data.data
+      if (response?.success) {
+        labdips.value = response.data || []
       }
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch labdips'
@@ -27,7 +27,7 @@ export const useLabdipStore = defineStore('labdip', () => {
     error.value = null
     try {
       const response = await labdipService.createLabdip(data)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchLabdips()
         return true
       }
@@ -45,7 +45,7 @@ export const useLabdipStore = defineStore('labdip', () => {
     error.value = null
     try {
       const response = await labdipService.updateLabdip(id, data)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchLabdips()
         return true
       }
@@ -63,7 +63,7 @@ export const useLabdipStore = defineStore('labdip', () => {
     error.value = null
     try {
       const response = await labdipService.deleteLabdip(id)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchLabdips()
         return true
       }

@@ -6,7 +6,7 @@ const qualityStore = useQualityStore()
 
 const isModalOpen = ref(false)
 const isEditing = ref(false)
-const editingId = ref<number | null>(null)
+const editingId = ref(null)
 
 const form = ref({
   quality_name: '',

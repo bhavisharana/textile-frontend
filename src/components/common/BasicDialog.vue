@@ -1,6 +1,5 @@
 <script setup>
-import { Teleport, defineProps, defineEmits } from 'vue';
-
+import { Teleport, defineProps, defineEmits } from "vue";
 
 const props = defineProps({
   isOpen: {
@@ -9,15 +8,15 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: '',
+    default: "",
   },
   subtitle: {
     type: String,
-    default: '',
+    default: "",
   },
   maxWidth: {
     type: String,
-    default: '560px',
+    default: "560px",
   },
   loading: {
     type: Boolean,
@@ -25,11 +24,11 @@ const props = defineProps({
   },
   submitText: {
     type: String,
-    default: 'Save',
+    default: "Save",
   },
   cancelText: {
     type: String,
-    default: 'Cancel',
+    default: "Cancel",
   },
   showFooter: {
     type: Boolean,
@@ -39,24 +38,24 @@ const props = defineProps({
     type: Boolean,
     default: true,
   },
-})
+});
 
-const emit = defineEmits(['update:isOpen', 'close', 'submit']);
+const emit = defineEmits(["update:isOpen", "close", "submit"]);
 
 const closeModal = () => {
-  emit('update:isOpen', false)
-  emit('close')
-}
+  emit("update:isOpen", false);
+  emit("close");
+};
 
 const handleBackdropClick = () => {
   if (props.closeOnBackdrop) {
-    closeModal()
+    closeModal();
   }
-}
+};
 
 const handleSubmit = () => {
-  emit('submit')
-}
+  emit("submit");
+};
 </script>
 
 <template>
@@ -70,7 +69,14 @@ const handleSubmit = () => {
               <h2 class="modal-title" v-if="title">{{ title }}</h2>
               <p class="modal-subtitle" v-if="subtitle">{{ subtitle }}</p>
             </div>
-            <button type="button" class="btn-close" @click="closeModal" title="Close">&times;</button>
+            <button
+              type="button"
+              class="btn-close"
+              @click="closeModal"
+              title="Close"
+            >
+              &times;
+            </button>
           </slot>
         </div>
 
@@ -85,7 +91,12 @@ const handleSubmit = () => {
             <button type="button" class="btn-cancel" @click="closeModal">
               {{ cancelText }}
             </button>
-            <button type="button" class="btn-submit" :disabled="loading" @click="handleSubmit">
+            <button
+              type="button"
+              class="btn-submit"
+              :disabled="loading"
+              @click="handleSubmit"
+            >
               <span v-if="loading" class="spinner"></span>
               <span v-else>{{ submitText }}</span>
             </button>

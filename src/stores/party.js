@@ -12,8 +12,8 @@ export const usePartyStore = defineStore('party', () => {
     error.value = null
     try {
       const response = await partyService.getParties()
-      if (response.data.success) {
-        parties.value = response.data.data
+      if (response?.success) {
+        parties.value = response.data || []
       }
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch parties'
@@ -27,7 +27,7 @@ export const usePartyStore = defineStore('party', () => {
     error.value = null
     try {
       const response = await partyService.createParty(data)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchParties()
         return true
       }
@@ -45,7 +45,7 @@ export const usePartyStore = defineStore('party', () => {
     error.value = null
     try {
       const response = await partyService.updateParty(id, data)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchParties()
         return true
       }
@@ -63,7 +63,7 @@ export const usePartyStore = defineStore('party', () => {
     error.value = null
     try {
       const response = await partyService.deleteParty(id)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchParties()
         return true
       }

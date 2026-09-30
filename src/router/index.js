@@ -62,15 +62,14 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach(async (to, _from, next) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore()
 
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next('/login')
-  } else if (to.meta.requiresGuest && authStore.isAuthenticated) {
-    next('/dashboard')
-  } else {
-    next()
+    return '/login'
+  }
+  if (to.meta.requiresGuest && authStore.isAuthenticated) {
+    return '/dashboard'
   }
 })
 

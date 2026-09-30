@@ -7,13 +7,13 @@ export const useOrderStore = defineStore('order', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  const fetchOrders=async()=>{
+  const fetchOrders = async () => {
     loading.value = true
     error.value = null
     try {
       const response = await orderService.getOrders()
-      if (response.data.success) {
-        orders.value = response.data.data
+      if (response?.success) {
+        orders.value = response.data || []
       }
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch orders'
@@ -22,12 +22,12 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  const createOrder=async(data)=> {
+  const createOrder = async (data) => {
     loading.value = true
     error.value = null
     try {
       const response = await orderService.createOrder(data)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchOrders()
         return true
       }
@@ -40,12 +40,12 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  const updateOrder=async(id, data)=> {
+  const updateOrder = async (id, data) => {
     loading.value = true
     error.value = null
     try {
       const response = await orderService.updateOrder(id, data)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchOrders()
         return true
       }
@@ -58,12 +58,12 @@ export const useOrderStore = defineStore('order', () => {
     }
   }
 
-  const deleteOrder=async(id)=> {
+  const deleteOrder = async (id) => {
     loading.value = true
     error.value = null
     try {
       const response = await orderService.deleteOrder(id)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchOrders()
         return true
       }

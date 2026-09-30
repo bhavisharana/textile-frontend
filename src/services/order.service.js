@@ -17,12 +17,12 @@ export const orderService={
     },
 
     async updateOrder(id, data) {
-        const response = await http.put(`/orders/${id}`, data);
+        const response = await http.post(`/orders/${id}/update`, data);
         return response.data;
     },
 
     async deleteOrder(id) {
-        const response = await http.delete(`/orders/${id}`);
+        const response = await http.post(`/orders/${id}/delete`);
         return response.data;
     },
 }

@@ -9,10 +9,10 @@ const labdipStore = useLabdipStore()
 const qualityStore = useQualityStore()
 
 const isModalOpen = ref(false)
-const selectedLabdip = ref<Labdip | null>(null)
+const selectedLabdip = ref(null)
 
 const isOrderModalOpen = ref(false)
-const selectedLabdipForOrder = ref<Labdip | null>(null)
+const selectedLabdipForOrder = ref(null)
 
 onMounted(() => {
   labdipStore.fetchLabdips()
@@ -39,12 +39,12 @@ function closeModal() {
   selectedLabdip.value = null
 }
 
-function closeOrderModal() {
+const closeOrderModal=()=> {
   isOrderModalOpen.value = false
   selectedLabdipForOrder.value = null
 }
 
-function getStatusClass(status) {
+const getStatusClass=(status)=>{
   switch (status) {
     case 'Approved':
       return 'status-approved'

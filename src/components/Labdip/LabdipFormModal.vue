@@ -74,12 +74,12 @@ const [received_date, received_dateProps] = defineField("received_date");
 const [sending_date, sending_dateProps] = defineField("sending_date");
 const [remarks, remarksProps] = defineField("remarks");
 
-function formatDateForInput(dateStr) {
+const formatDateForInput = (dateStr) => {
   if (!dateStr) return "";
   return new Date(dateStr).toISOString().split("T")[0];
-}
+};
 
-function resetForm() {
+const resetForm = () => {
   formError.value = null;
   if (props.labdip) {
     isEditing.value = true;
@@ -142,7 +142,7 @@ watch(quality_id, (newVal) => {
   }
 });
 
-function closeModal() {
+const closeModal = () => {
   emit("update:isOpen", false);
   emit("close");
 }
@@ -201,7 +201,6 @@ const onSubmit = handleSubmit(async (values) => {
               <option value="">-- Select from Party Master or Custom --</option>
               <option v-for="p in partyStore.parties" :key="p.id" :value="p.name">{{ p.name }} ({{ p.code }})</option>
             </select>
-            <input id="party_name" v-model="party_name" v-bind="party_nameProps" type="text" placeholder="Or enter Party Name manually" :class="{ 'input-error': errors.party_name }"/>
           </div>
           <span v-if="errors.party_name" class="field-error">{{ errors.party_name }}</span>
         </div>

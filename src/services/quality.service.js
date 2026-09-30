@@ -17,12 +17,12 @@ export const qualityService={
     },
 
     async updateQuality(id, data) {
-        const response = await http.put(`/qualities/${id}`, data);
+        const response = await http.post(`/qualities/${id}/update`, data);
         return response.data;
     },
 
     async deleteQuality(id) {
-        const response = await http.delete(`/qualities/${id}`);
+        const response = await http.post(`/qualities/${id}/delete`);
         return response.data;
     },
 }

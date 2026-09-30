@@ -25,7 +25,7 @@ const orderStore = useOrderStore()
 const partyStore = usePartyStore()
 
 const isEditing = ref(false)
-const editingId = ref<number | null>(null)
+const editingId = ref(null)
 
 const form = ref({
   labdip_id: null,
@@ -36,7 +36,7 @@ const form = ref({
   remarks: '',
 })
 
-const formError = ref<string | null>(null)
+const formError = ref(null)
 
 const calculatedTotal = computed(() => {
   const q = Number(form.value.quantity) || 0

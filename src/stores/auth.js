@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { http as api } from '../utils/http'
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('token'))
@@ -17,7 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const response = await api.post('/auth/login', credentials)
       if (response.data.success) {
-        const { token, user } = response.data.data
+        const { token: tokenData, user: userData } = response.data.data
         token.value = tokenData
         user.value = userData
 

@@ -12,8 +12,8 @@ export const useQualityStore = defineStore('quality', () => {
     error.value = null
     try {
       const response = await qualityService.getQualities()
-      if (response.data.success) {
-        qualities.value = response.data.data
+      if (response?.success) {
+        qualities.value = response.data || []
       }
     } catch (err) {
       error.value = err.response?.data?.message || 'Failed to fetch qualities'
@@ -27,7 +27,7 @@ export const useQualityStore = defineStore('quality', () => {
     error.value = null
     try {
       const response = await qualityService.createQuality(data)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchQualities()
         return true
       }
@@ -45,7 +45,7 @@ export const useQualityStore = defineStore('quality', () => {
     error.value = null
     try {
       const response = await qualityService.updateQuality(id, data)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchQualities()
         return true
       }
@@ -63,7 +63,7 @@ export const useQualityStore = defineStore('quality', () => {
     error.value = null
     try {
       const response = await qualityService.deleteQuality(id)
-      if (response.data.success) {
+      if (response?.success) {
         await fetchQualities()
         return true
       }

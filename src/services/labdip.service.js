@@ -17,12 +17,12 @@ export const labdipService={
     },
     
     async updateLabdip(id, data) {
-        const response = await http.put(`/labdips/${id}`, data);
+        const response = await http.post(`/labdips/${id}/update`, data);
         return response.data;
     },
     
     async deleteLabdip(id) {
-        const response = await http.delete(`/labdips/${id}`);
+        const response = await http.post(`/labdips/${id}/delete`);
         return response.data;
     },
 }
