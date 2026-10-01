@@ -1,8 +1,10 @@
 <script setup>
-import { ref, defineProps, defineEmits, computed, watch, onMounted } from 'vue'
-import BasicDialog from '../common/BasicDialog.vue'
-import { useOrderStore } from '../../stores/order.js'
-import { usePartyStore } from '../../stores/party.js'
+import { ref, defineProps, defineEmits, computed, watch, onMounted } from "vue";
+import { useForm } from "vee-validate";
+import * as yup from "yup";
+import BasicDialog from "../common/BasicDialog.vue";
+import { useOrderStore } from "../../stores/order.js";
+import { usePartyStore } from "../../stores/party.js";
 
 const props = defineProps({
   isOpen: {
@@ -19,134 +21,166 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(['update:isOpen', 'close', 'saved']);
+const emit = defineEmits(["update:isOpen", "close", "saved"]);
 
-const orderStore = useOrderStore()
-const partyStore = usePartyStore()
+const orderStore = useOrderStore();
+const partyStore = usePartyStore();
 
-const isEditing = ref(false)
-const editingId = ref(null)
+const isEditing = ref(false);
+const editingId = ref(null);
+const formError = ref(null);
 
-const form = ref({
-  labdip_id: null,
-  labdip_no: '',
-  party_name: '',
-  quantity: 0,
-  rate: 0,
-  remarks: '',
-})
+// Yup validation schema
+const orderSchema = yup.object({
+  labdip_id: yup.number().nullable().optional(),
+  labdip_no: yup.string().trim().required("Labdip Reference No is required"),
+  party_name: yup.string().trim().required("Party Name is required"),
+  quantity: yup
+    .number()
+    .transform((value, originalValue) =>
+      String(originalValue).trim() === "" ? null : value,
+    )
+    .nullable()
+    .required("Quantity is required")
+    .positive("Quantity must be greater than 0"),
+  rate: yup
+    .number()
+    .transform((value, originalValue) =>
+      String(originalValue).trim() === "" ? null : value,
+    )
+    .nullable()
+    .required("Rate is required")
+    .positive("Rate must be greater than 0"),
+  remarks: yup.string().nullable().optional(),
+});
 
-const formError = ref(null)
+// Vee-validate form setup
+const {
+  handleSubmit,
+  errors,
+  resetForm: resetVeeForm,
+  setValues,
+  defineField,
+} = useForm({
+  validationSchema: orderSchema,
+  initialValues: {
+    labdip_id: null,
+    labdip_no: "",
+    party_name: "",
+    quantity: "",
+    rate: "",
+    remarks: "",
+  },
+});
+
+const [labdip_id] = defineField("labdip_id");
+const [labdip_no, labdip_noProps] = defineField("labdip_no");
+const [party_name, party_nameProps] = defineField("party_name");
+const [quantity, quantityProps] = defineField("quantity");
+const [rate, rateProps] = defineField("rate");
+const [remarks, remarksProps] = defineField("remarks");
 
 const calculatedTotal = computed(() => {
-  const q = Number(form.value.quantity) || 0
-  const r = Number(form.value.rate) || 0
-  return (q * r).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-})
+  const q = Number(quantity.value) || 0;
+  const r = Number(rate.value) || 0;
+  return (q * r).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+});
 
 onMounted(() => {
   if (partyStore.parties.length === 0) {
-    partyStore.fetchParties()
+    partyStore.fetchParties();
   }
-})
+});
 
-const resetForm=()=> {
-  formError.value = null
+const resetForm = () => {
+  formError.value = null;
   if (props.order) {
-    isEditing.value = true
-    editingId.value = props.order.id
-    form.value = {
+    isEditing.value = true;
+    editingId.value = props.order.id;
+    setValues({
       labdip_id: props.order.labdip_id || null,
-      labdip_no: props.order.labdip_no,
-      party_name: props.order.party_name,
-      quantity: props.order.quantity,
-      rate: props.order.rate,
-      remarks: props.order.remarks || '',
-    }
+      labdip_no: props.order.labdip_no || "",
+      party_name: props.order.party_name || "",
+      quantity: props.order.quantity ?? "",
+      rate: props.order.rate ?? "",
+      remarks: props.order.remarks || "",
+    });
   } else if (props.labdip) {
-    isEditing.value = false
-    editingId.value = null
-    form.value = {
-      labdip_id: props.labdip.id,
-      labdip_no: props.labdip.labdip_no,
-      party_name: props.labdip.party_name,
-      quantity: 0,
-      rate: 0,
-      remarks: '',
-    }
+    isEditing.value = false;
+    editingId.value = null;
+    resetVeeForm({
+      values: {
+        labdip_id: props.labdip.id || null,
+        labdip_no: props.labdip.labdip_no || "",
+        party_name: props.labdip.party_name || "",
+        quantity: "",
+        rate: "",
+        remarks: "",
+      },
+    });
   } else {
-    isEditing.value = false
-    editingId.value = null
-    form.value = {
-      labdip_id: null,
-      labdip_no: '',
-      party_name: '',
-      quantity: 0,
-      rate: 0,
-      remarks: '',
-    }
+    isEditing.value = false;
+    editingId.value = null;
+    resetVeeForm({
+      values: {
+        labdip_id: null,
+        labdip_no: "",
+        party_name: "",
+        quantity: "",
+        rate: "",
+        remarks: "",
+      },
+    });
   }
-}
+};
 
 watch(
   () => [props.isOpen, props.order, props.labdip],
   ([newIsOpen]) => {
     if (newIsOpen) {
-      resetForm()
+      resetForm();
       if (partyStore.parties.length === 0) {
-        partyStore.fetchParties()
+        partyStore.fetchParties();
       }
     }
   },
-  { immediate: true }
-)
+  { immediate: true },
+);
 
-const closeModal=()=> {
-  emit('update:isOpen', false)
-  emit('close')
-}
+const closeModal = () => {
+  emit("update:isOpen", false);
+  emit("close");
+};
 
-const handleSubmit=async()=> {
-  if (!form.value.labdip_no.trim()) {
-    formError.value = 'Labdip Reference No is required'
-    return
-  }
-  if (!form.value.party_name.trim()) {
-    formError.value = 'Party Name is required'
-    return
-  }
-  if (form.value.quantity <= 0) {
-    formError.value = 'Quantity must be greater than 0'
-    return
-  }
-  if (form.value.rate <= 0) {
-    formError.value = 'Rate must be greater than 0'
-    return
-  }
+const onSubmit = handleSubmit(async (data) => {
+  formError.value = null;
 
   const payload = {
-    labdip_id: form.value.labdip_id,
-    labdip_no: form.value.labdip_no,
-    party_name: form.value.party_name,
-    quantity: Number(form.value.quantity),
-    rate: Number(form.value.rate),
-    remarks: form.value.remarks,
-  }
+    labdip_id: data.labdip_id ? Number(data.labdip_id) : null,
+    labdip_no: data.labdip_no,
+    party_name: data.party_name,
+    quantity: Number(data.quantity),
+    rate: Number(data.rate),
+    remarks: data.remarks || "",
+  };
 
-  let success = false
+  let success = false;
   if (isEditing.value && editingId.value) {
-    success = await orderStore.updateOrder(editingId.value, payload)
+    success = await orderStore.updateOrder(editingId.value, payload);
   } else {
-    success = await orderStore.createOrder(payload)
+    success = await orderStore.createOrder(payload);
   }
 
   if (success) {
-    emit('saved')
-    closeModal()
+    emit("saved");
+    closeModal();
   } else {
-    formError.value = orderStore.error || 'Operation failed'
+    formError.value = orderStore.error || "Operation failed";
   }
-}
+});
 </script>
 
 <template>
@@ -158,9 +192,9 @@ const handleSubmit=async()=> {
     :loading="orderStore.loading"
     :submit-text="isEditing ? 'Update Order' : 'Save Order'"
     @close="closeModal"
-    @submit="handleSubmit"
+    @submit="onSubmit"
   >
-    <form @submit.prevent="handleSubmit" class="modal-form-content">
+    <form id="order-form" @submit.prevent="onSubmit" class="modal-form-content">
       <div v-if="formError" class="alert alert-error">
         <span>{{ formError }}</span>
       </div>
@@ -169,33 +203,79 @@ const handleSubmit=async()=> {
         <!-- Labdip Reference No -->
         <div class="form-group">
           <label for="labdip_no">Labdip Reference No *</label>
-          <input id="labdip_no" v-model="form.labdip_no" type="text" placeholder="e.g. LD-2026-001" class="form-control" :readonly="!!labdip" required/>
+          <input
+            id="labdip_no"
+            v-model="labdip_no"
+            v-bind="labdip_noProps"
+            type="text"
+            placeholder="e.g. LD-2026-001"
+            class="form-control"
+            :class="{ 'input-error': errors.labdip_no }"
+            :readonly="!!labdip"
+          />
+          <span v-if="errors.labdip_no" class="field-error">{{
+            errors.labdip_no
+          }}</span>
         </div>
 
         <!-- Party Name -->
         <div class="form-group">
           <label for="party_name">Party Name *</label>
           <div class="party-select-wrapper">
-            <select v-if="partyStore.parties.length > 0" v-model="form.party_name" class="form-control">
+            <select
+              id="party_name"
+              v-model="party_name"
+              v-bind="party_nameProps"
+              class="form-control"
+              :class="{ 'input-error': errors.party_name }"
+            >
               <option value="">-- Select from Party Master or Custom --</option>
-              <option v-for="p in partyStore.parties" :key="p.id" :value="p.name">
+              <option
+                v-for="p in partyStore.parties"
+                :key="p.id"
+                :value="p.name"
+              >
                 {{ p.name }} ({{ p.code }})
               </option>
             </select>
-            <input id="party_name" v-model="form.party_name" type="text" placeholder="Enter or select Party Name" class="form-control" required/>
           </div>
+          <span v-if="errors.party_name" class="field-error">{{
+            errors.party_name
+          }}</span>
         </div>
 
         <!-- Quantity -->
         <div class="form-group">
           <label for="quantity">Quantity *</label>
-          <input id="quantity" v-model.number="form.quantity" type="number" step="any" min="0.01" placeholder="e.g. 500" class="form-control" required/>
+          <input
+            id="quantity"
+            v-model="quantity"
+            v-bind="quantityProps"
+            type="number"
+            step="any"
+            placeholder="e.g. 500"
+            class="form-control"
+            :class="{ 'input-error': errors.quantity }"
+          />
+          <span v-if="errors.quantity" class="field-error">{{
+            errors.quantity
+          }}</span>
         </div>
 
         <!-- Rate -->
         <div class="form-group">
           <label for="rate">Rate *</label>
-          <input id="rate" v-model.number="form.rate" type="number" step="any" min="0.01" placeholder="e.g. 25.50" class="form-control" required/>
+          <input
+            id="rate"
+            v-model="rate"
+            v-bind="rateProps"
+            type="number"
+            step="any"
+            placeholder="e.g. 25.50"
+            class="form-control"
+            :class="{ 'input-error': errors.rate }"
+          />
+          <span v-if="errors.rate" class="field-error">{{ errors.rate }}</span>
         </div>
 
         <!-- Total Amount Calculation Display -->
@@ -209,7 +289,14 @@ const handleSubmit=async()=> {
         <!-- Remarks -->
         <div class="form-group full-width">
           <label for="remarks">Remarks</label>
-          <textarea id="remarks" v-model="form.remarks" rows="3" placeholder="Enter order notes or shipping specifications..." class="form-control textarea-control"></textarea>
+          <textarea
+            id="remarks"
+            v-model="remarks"
+            v-bind="remarksProps"
+            rows="3"
+            placeholder="Enter order notes or shipping specifications..."
+            class="form-control textarea-control"
+          ></textarea>
         </div>
       </div>
     </form>
@@ -252,6 +339,7 @@ const handleSubmit=async()=> {
 }
 
 .form-control {
+  width: 100%;
   padding: 10px 14px;
   border: 1px solid var(--input-border);
   border-radius: 8px;
@@ -260,6 +348,7 @@ const handleSubmit=async()=> {
   outline: none;
   transition: all 0.2s ease;
   background: var(--input-bg);
+  box-sizing: border-box;
 }
 
 .form-control[readonly] {
@@ -271,6 +360,16 @@ const handleSubmit=async()=> {
 .form-control:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.field-error {
+  color: #ef4444;
+  font-size: 0.775rem;
+  margin-top: 2px;
+}
+
+.input-error {
+  border-color: #ef4444 !important;
 }
 
 .total-banner {

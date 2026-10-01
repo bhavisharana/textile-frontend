@@ -1,33 +1,39 @@
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
 import OrderFormModal from '../components/Order/OrderFormModal.vue'
-import { useOrderStore, type Order } from '../stores/order.js'
+import { useOrderStore } from '../stores/order.js'
 
 const orderStore = useOrderStore()
 
 const isModalOpen = ref(false)
-const selectedOrder = ref<Order | null>(null)
+const selectedOrder = ref(null)
+
+const filters = ref({
+  global: { value: null, matchMode: 'contains' },
+})
 
 onMounted(() => {
   orderStore.fetchOrders()
 })
 
-function openAddModal() {
+const openAddModal=()=> {
   selectedOrder.value = null
   isModalOpen.value = true
 }
 
-function openEditModal(order: Order) {
+const openEditModal=(order)=> {
   selectedOrder.value = order
   isModalOpen.value = true
 }
 
-function closeModal() {
+const closeModal=()=> {
   isModalOpen.value = false
   selectedOrder.value = null
 }
 
-async function handleDelete(id: number) {
+const handleDelete=async(id)=> {
   if (confirm('Are you sure you want to delete this order?')) {
     await orderStore.deleteOrder(id)
   }
@@ -43,10 +49,7 @@ async function handleDelete(id: number) {
         <p class="page-subtitle">Track orders created from approved labdips, quantities & billing details</p>
       </div>
       <button class="btn-primary" @click="openAddModal">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="12" y1="5" x2="12" y2="19"></line>
-          <line x1="5" y1="12" x2="19" y2="12"></line>
-        </svg>
+        <i class="pi pi-plus"></i>
         New Order
       </button>
     </div>
@@ -64,60 +67,119 @@ async function handleDelete(id: number) {
       </div>
 
       <div v-else-if="orderStore.orders.length === 0" class="empty-state">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="9" cy="21" r="1"></circle>
-          <circle cx="20" cy="21" r="1"></circle>
-          <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-        </svg>
+          <i class="pi pi-shopping-cart" style="font-size: 3rem;"></i>
         <h3>No Orders Found</h3>
-        <p>Create an order directly or convert an approved labdip into an order.</p>
-        <button class="btn-secondary" @click="openAddModal">Create Order</button>
       </div>
 
       <div v-else class="table-responsive">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Order ID</th>
-              <th>Labdip Ref No</th>
-              <th>Party Name</th>
-              <th>Quantity</th>
-              <th>Rate</th>
-              <th>Total Amount</th>
-              <th>Remarks</th>
-              <th>Date</th>
-              <th class="text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in orderStore.orders" :key="item.id">
-              <td><span class="id-tag">#ORD-{{ item.id }}</span></td>
-              <td><span class="labdip-no-badge">{{ item.labdip_no }}</span></td>
-              <td class="font-semibold">{{ item.party_name }}</td>
-              <td class="font-mono">{{ item.quantity }}</td>
-              <td class="font-mono">${{ item.rate.toFixed(2) }}</td>
-              <td class="font-mono total-cell">${{ item.total_amount.toFixed(2) }}</td>
-              <td class="text-muted remarks-cell">{{ item.remarks || '-' }}</td>
-              <td class="text-muted">{{ item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A' }}</td>
-              <td class="text-right">
-                <div class="action-buttons">
-                  <button class="btn-icon btn-icon-edit" title="Edit" @click="openEditModal(item)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                    </svg>
-                  </button>
-                  <button class="btn-icon btn-icon-delete" title="Delete" @click="handleDelete(item.id)">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <polyline points="3 6 5 6 21 6"></polyline>
-                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                    </svg>
-                  </button>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable
+          :value="orderStore.orders"
+          v-model:filters="filters"
+          :globalFilterFields="['id', 'labdip_no', 'party_name', 'quantity', 'rate', 'total_amount', 'remarks']"
+          paginator
+          :rows="10"
+          :rowsPerPageOptions="[5, 10, 20, 50]"
+          responsiveLayout="scroll"          
+          dataKey="id"
+          class="custom-datatable"
+          paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
+          currentPageReportTemplate="{first} to {last} of {totalRecords} entries"
+        >
+          <template #header>
+            <div class="table-header-toolbar">
+              <div class="header-left">
+                <span class="table-header-title">Orders List</span>
+                <span class="count-badge">{{ orderStore.orders.length }}</span>
+              </div>
+              <div class="search-box">
+                <i class="pi pi-search search-icon"></i>
+                <input
+                  v-model="filters['global'].value"
+                  type="text"
+                  placeholder="Search orders..."
+                  class="search-input"
+                />
+                <button
+                  v-if="filters['global'].value"
+                  class="search-clear-btn"
+                  @click="filters['global'].value = ''"
+                  title="Clear search"
+                  type="button"
+                >
+                  <i class="pi pi-times"></i>
+                </button>
+              </div>
+            </div>
+          </template>
+
+          <template #empty>
+            <div class="empty-filter-state">
+              <i class="pi pi-search"></i>
+              <span>No matching orders found</span>
+            </div>
+          </template>
+
+          <Column field="id" header="Order ID">
+            <template #body="{ data }">
+              <span class="id-tag">#ORD-{{ data.id }}</span>
+            </template>
+          </Column>
+
+          <Column field="labdip_no" header="Labdip Ref No">
+            <template #body="{ data }">
+              <span class="labdip-no-badge">{{ data.labdip_no }}</span>
+            </template>
+          </Column>
+
+          <Column field="party_name" header="Party Name">
+            <template #body="{ data }">
+              <span class="font-semibold">{{ data.party_name }}</span>
+            </template>
+          </Column>
+
+          <Column field="quantity" header="Quantity">
+            <template #body="{ data }">
+              <span class="font-mono">{{ data.quantity }}</span>
+            </template>
+          </Column>
+
+          <Column field="rate" header="Rate">
+            <template #body="{ data }">
+              <span class="font-mono">${{ Number(data.rate).toFixed(2) }}</span>
+            </template>
+          </Column>
+
+          <Column field="total_amount" header="Total Amount">
+            <template #body="{ data }">
+              <span class="font-mono total-cell">${{ Number(data.total_amount).toFixed(2) }}</span>
+            </template>
+          </Column>
+
+          <Column field="remarks" header="Remarks">
+            <template #body="{ data }">
+              <span class="text-muted remarks-cell" :title="data.remarks">{{ data.remarks || '-' }}</span>
+            </template>
+          </Column>
+
+          <Column field="created_at" header="Date">
+            <template #body="{ data }">
+              <span class="text-muted">{{ data.created_at ? new Date(data.created_at).toLocaleDateString() : 'N/A' }}</span>
+            </template>
+          </Column>
+
+          <Column header="Actions">
+            <template #body="{ data }">
+              <div class="action-buttons">
+                <button class="btn-icon btn-icon-edit" v-tooltip.bottom="'Edit'" @click="openEditModal(data)">
+                  <i class="pi pi-pencil"></i>
+                </button>
+                <button class="btn-icon btn-icon-delete" v-tooltip.bottom="'Delete'" @click="handleDelete(data.id)">
+                  <i class="pi pi-trash"></i>
+                </button>
+              </div>
+            </template>
+          </Column>
+        </DataTable>
       </div>
     </div>
 
@@ -222,14 +284,122 @@ async function handleDelete(id: number) {
   overflow-x: auto;
 }
 
-.data-table {
+/* Table Header Toolbar */
+.table-header-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-card);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.table-header-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 9999px;
+  background: var(--bg-surface);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+}
+
+.search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 260px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.search-input {
   width: 100%;
-  border-collapse: collapse;
-  text-align: left;
+  padding: 8px 34px 8px 34px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--input-text);
+  font-size: 0.875rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.search-clear-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  border-radius: 4px;
+}
+
+.search-clear-btn:hover {
+  color: var(--text-primary);
+}
+
+.empty-filter-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 16px;
+  color: var(--text-muted);
+  gap: 10px;
+  font-size: 0.9rem;
+}
+
+/* Custom PrimeVue DataTable Theming */
+:deep(.p-datatable) {
   font-size: 0.875rem;
 }
 
-.data-table th {
+:deep(.p-datatable-header) {
+  padding: 0;
+  background: transparent;
+  border: none;
+}
+
+:deep(.p-datatable-table) {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+:deep(.p-datatable-thead > tr > th) {
   background: var(--table-th-bg);
   color: var(--table-th-text);
   font-weight: 600;
@@ -239,17 +409,51 @@ async function handleDelete(id: number) {
   font-size: 0.75rem;
   letter-spacing: 0.05em;
   white-space: nowrap;
+  transition: background 0.15s ease;
 }
 
-.data-table td {
+:deep(.p-datatable-thead > tr > th.p-sortable-column:hover) {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+:deep(.p-datatable-tbody > tr > td) {
   padding: 14px 18px;
   border-bottom: 1px solid var(--table-td-border);
   color: var(--text-secondary);
   white-space: nowrap;
 }
 
-.data-table tbody tr:hover {
-  background: var(--table-hover);
+:deep(.p-datatable-tbody > tr:hover) {
+  background: var(--table-hover) !important;
+}
+
+:deep(.p-paginator) {
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  padding: 12px 18px;
+  color: var(--text-secondary);
+  gap: 4px;
+}
+
+:deep(.p-paginator-page.p-paginator-page-selected) {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  font-weight: 700;
+}
+
+:deep(.p-paginator-current) {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+:deep(.p-select),
+:deep(.p-dropdown) {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--input-text);
+  border-radius: 6px;
+  font-size: 0.85rem;
 }
 
 .id-tag {
