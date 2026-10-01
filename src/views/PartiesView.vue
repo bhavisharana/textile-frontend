@@ -87,7 +87,6 @@ async function handleDelete(id) {
           :rows="10"
           :rowsPerPageOptions="[5, 10, 20, 50]"
           responsiveLayout="scroll"
-          stripedRows
           dataKey="id"
           class="custom-datatable"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
