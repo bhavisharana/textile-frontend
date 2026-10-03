@@ -18,22 +18,22 @@ onMounted(() => {
   partyStore.fetchParties()
 })
 
-function openAddModal() {
+const openAddModal=() =>{
   selectedParty.value = null
   isModalOpen.value = true
 }
 
-function openEditModal(party) {
+const openEditModal=(party) =>{
   selectedParty.value = party
   isModalOpen.value = true
 }
 
-function closeModal() {
+const closeModal=() =>{
   isModalOpen.value = false
   selectedParty.value = null
 }
 
-async function handleDelete(id) {
+const handleDelete=async(id) =>{
   if (confirm('Are you sure you want to delete this party?')) {
     await partyStore.deleteParty(id)
   }
@@ -67,12 +67,7 @@ async function handleDelete(id) {
       </div>
 
       <div v-else-if="partyStore.parties.length === 0" class="empty-state">
-        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
+        <i class="pi pi-search"></i>
         <h3>No Parties Found</h3>
         <p>Get started by adding your first party entry.</p>
         <button class="btn-secondary" @click="openAddModal">Add Party</button>
