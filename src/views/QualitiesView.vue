@@ -3,12 +3,15 @@ import { ref, onMounted } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import QualityFormModal from '../components/Quality/QualityFormModal.vue'
+import ConfirmationDialog from '../components/common/ConfirmationDialog.vue'
 import { useQualityStore } from '../stores/quality'
 
 const qualityStore = useQualityStore()
 
 const isModalOpen = ref(false)
 const selectedQuality = ref(null)
+const isConfirmDeleteOpen = ref(false)
+const qualityToDelete = ref(null)
 
 const filters = ref({
   global: { value: null, matchMode: 'contains' },
@@ -33,9 +36,18 @@ const closeModal = () => {
   selectedQuality.value = null
 }
 
-const handleDelete = async (id) => {
-  if (confirm('Are you sure you want to delete this quality?')) {
-    await qualityStore.deleteQuality(id)
+const confirmDelete = (id) => {
+  qualityToDelete.value = id
+  isConfirmDeleteOpen.value = true
+}
+
+const handleDeleteConfirm = async () => {
+  if (qualityToDelete.value) {
+    const success = await qualityStore.deleteQuality(qualityToDelete.value)
+    if (success) {
+      isConfirmDeleteOpen.value = false
+      qualityToDelete.value = null
+    }
   }
 }
 </script>
@@ -155,7 +167,7 @@ const handleDelete = async (id) => {
                 <button class="btn-icon btn-icon-edit" v-tooltip.bottom="'Edit'" @click="openEditModal(data)">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="btn-icon btn-icon-delete" v-tooltip.bottom="'Delete'" @click="handleDelete(data.id)">
+                <button class="btn-icon btn-icon-delete" v-tooltip.bottom="'Delete'" @click="confirmDelete(data.id)">
                   <i class="pi pi-trash"></i>
                 </button>
               </div>
@@ -170,6 +182,17 @@ const handleDelete = async (id) => {
       v-model:is-open="isModalOpen"
       :quality="selectedQuality"
       @close="closeModal"
+    />
+
+    <!-- Delete Confirmation Dialog -->
+    <ConfirmationDialog
+      v-model:is-open="isConfirmDeleteOpen"
+      title="Delete Quality"
+      confirm-title="Confirm Deletion"
+      message="Are you sure you want to proceed with this deletion?"
+      :loading="qualityStore.loading"
+      @confirm="handleDeleteConfirm"
+      @close="qualityToDelete = null"
     />
   </div>
 </template>

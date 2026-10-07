@@ -5,6 +5,7 @@ import Tooltip from 'primevue/tooltip'
 import pinia from './stores'
 import router from './router'
 import 'primeicons/primeicons.css'
+import './assets/tailwind.css'
 import './style.css'
 import App from './App.vue'
 

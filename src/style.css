@@ -55,6 +55,14 @@
 
   --status-pending-bg: #fef3c7;
   --status-pending-text: #92400e;
+  --status-processing-bg: #e0f2fe;
+  --status-processing-text: #0369a1;
+  --status-dispatched-bg: #f3e8ff;
+  --status-dispatched-text: #7e22ce;
+  --status-delivered-bg: #dcfce7;
+  --status-delivered-text: #166534;
+  --status-cancelled-bg: #fee2e2;
+  --status-cancelled-text: #991b1b;
   --status-inprogress-bg: #e0f2fe;
   --status-inprogress-text: #075985;
   --status-approved-bg: #dcfce7;
@@ -117,6 +125,14 @@
 
   --status-pending-bg: #78350f;
   --status-pending-text: #fde68a;
+  --status-processing-bg: #0c4a6e;
+  --status-processing-text: #7dd3fc;
+  --status-dispatched-bg: #581c87;
+  --status-dispatched-text: #e9d5ff;
+  --status-delivered-bg: #064e3b;
+  --status-delivered-text: #6ee7b7;
+  --status-cancelled-bg: #7f1d1d;
+  --status-cancelled-text: #fca5a5;
   --status-inprogress-bg: #0c4a6e;
   --status-inprogress-text: #7dd3fc;
   --status-approved-bg: #064e3b;

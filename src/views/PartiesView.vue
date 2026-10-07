@@ -3,12 +3,15 @@ import { ref, onMounted } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import PartyFormModal from '../components/Parties/PartyFormModal.vue'
+import ConfirmationDialog from '../components/common/ConfirmationDialog.vue'
 import { usePartyStore } from '../stores/party'
 
 const partyStore = usePartyStore()
 
 const isModalOpen = ref(false)
 const selectedParty = ref(null)
+const isConfirmDeleteOpen = ref(false)
+const partyToDelete = ref(null)
 
 const filters = ref({
   global: { value: null, matchMode: 'contains' },
@@ -18,24 +21,33 @@ onMounted(() => {
   partyStore.fetchParties()
 })
 
-const openAddModal=() =>{
+const openAddModal = () => {
   selectedParty.value = null
   isModalOpen.value = true
 }
 
-const openEditModal=(party) =>{
+const openEditModal = (party) => {
   selectedParty.value = party
   isModalOpen.value = true
 }
 
-const closeModal=() =>{
+const closeModal = () => {
   isModalOpen.value = false
   selectedParty.value = null
 }
 
-const handleDelete=async(id) =>{
-  if (confirm('Are you sure you want to delete this party?')) {
-    await partyStore.deleteParty(id)
+const confirmDelete = (id) => {
+  partyToDelete.value = id
+  isConfirmDeleteOpen.value = true
+}
+
+const handleDeleteConfirm = async () => {
+  if (partyToDelete.value) {
+    const success = await partyStore.deleteParty(partyToDelete.value)
+    if (success) {
+      isConfirmDeleteOpen.value = false
+      partyToDelete.value = null
+    }
   }
 }
 </script>
@@ -145,7 +157,7 @@ const handleDelete=async(id) =>{
                 <button class="btn-icon btn-icon-edit" v-tooltip.bottom="'Edit'" @click="openEditModal(data)">
                   <i class="pi pi-pencil"></i>
                 </button>
-                <button class="btn-icon btn-icon-delete" v-tooltip.bottom="'Delete'" @click="handleDelete(data.id)">
+                <button class="btn-icon btn-icon-delete" v-tooltip.bottom="'Delete'" @click="confirmDelete(data.id)">
                   <i class="pi pi-trash"></i>
                 </button>
               </div>
@@ -160,6 +172,17 @@ const handleDelete=async(id) =>{
       v-model:is-open="isModalOpen"
       :party="selectedParty"
       @close="closeModal"
+    />
+
+    <!-- Delete Confirmation Dialog -->
+    <ConfirmationDialog
+      v-model:is-open="isConfirmDeleteOpen"
+      title="Delete Party"
+      confirm-title="Confirm Deletion"
+      message="Are you sure you want to proceed with this deletion?"
+      :loading="partyStore.loading"
+      @confirm="handleDeleteConfirm"
+      @close="partyToDelete = null"
     />
   </div>
 </template>

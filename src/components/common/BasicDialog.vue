@@ -1,5 +1,6 @@
 <script setup>
-import { Teleport, defineProps, defineEmits } from "vue";
+import { defineProps, defineEmits } from "vue";
+import Dialog from "primevue/dialog";
 
 const props = defineProps({
   isOpen: {
@@ -47,8 +48,8 @@ const closeModal = () => {
   emit("close");
 };
 
-const handleBackdropClick = () => {
-  if (props.closeOnBackdrop) {
+const handleVisibilityChange = (visible) => {
+  if (!visible) {
     closeModal();
   }
 };
@@ -59,98 +60,74 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <Teleport to="body">
-    <div v-if="isOpen" class="modal-backdrop" @click.self="handleBackdropClick">
-      <div class="modal-card" :style="{ maxWidth: maxWidth }">
-        <!-- Header -->
-        <div class="modal-header">
-          <slot name="header">
-            <div>
-              <h2 class="modal-title" v-if="title">{{ title }}</h2>
-              <p class="modal-subtitle" v-if="subtitle">{{ subtitle }}</p>
-            </div>
-            <button
-              type="button"
-              class="btn-close"
-              @click="closeModal"
-              title="Close"
-            >
-              &times;
-            </button>
-          </slot>
-        </div>
-
-        <!-- Body / Content Slot for Dynamic Forms -->
-        <div class="modal-body">
-          <slot></slot>
-        </div>
-
-        <!-- Footer -->
-        <div v-if="showFooter" class="modal-footer">
-          <slot name="footer">
-            <button type="button" class="btn-cancel" @click="closeModal">
-              {{ cancelText }}
-            </button>
-            <button
-              type="button"
-              class="btn-submit"
-              :disabled="loading"
-              @click="handleSubmit"
-            >
-              <span v-if="loading" class="spinner"></span>
-              <span v-else>{{ submitText }}</span>
-            </button>
-          </slot>
-        </div>
+  <Dialog
+    :visible="isOpen"
+    :modal="true"
+    :dismissable-mask="closeOnBackdrop"
+    :close-on-escape="false"
+    :closable="false"
+    :style="{ width: '100%', maxWidth }"
+    :pt="{
+      mask: { class: '!bg-[var(--modal-overlay)] !backdrop-blur-sm' },
+      root: {
+        class:
+          '!max-h-[90vh] !overflow-hidden !rounded-xl !border !border-[var(--border-color)] !bg-[var(--modal-bg)] !shadow-2xl',
+      },
+      header: { class: '!border-0 !bg-[var(--modal-bg)] !p-0' },
+      content: { class: '!bg-[var(--modal-bg)] !p-0' },
+      footer: { class: '!border-0 !bg-[var(--modal-bg)] !p-0' },
+    }"
+    @update:visible="handleVisibilityChange"
+  >
+    <template #header>
+      <div class="modal-header">
+        <slot name="header">
+          <div>
+            <h2 v-if="title" class="modal-title">{{ title }}</h2>
+            <p v-if="subtitle" class="modal-subtitle">{{ subtitle }}</p>
+          </div>
+          <button
+            type="button"
+            class="btn-close"
+            @click="closeModal"
+            v-tooltip.bottom="'Close'"
+          >
+            &times;
+          </button>
+        </slot>
       </div>
+    </template>
+
+    <div class="modal-body">
+      <slot></slot>
     </div>
-  </Teleport>
+
+    <template v-if="showFooter" #footer>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" @click="closeModal">
+          {{ cancelText }}
+        </button>
+        <button
+          type="button"
+          class="btn-submit"
+          :disabled="loading"
+          @click="handleSubmit"
+        >
+          <span v-if="loading" class="spinner"></span>
+          <span v-else>{{ submitText }}</span>
+        </button>
+      </div>
+    </template>
+  </Dialog>
 </template>
 
 <style scoped>
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--modal-overlay);
-  backdrop-filter: blur(4px);
-  padding: 16px;
-}
-
-.modal-card {
-  width: 100%;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--modal-bg);
-  border-radius: 16px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--border-color);
-  overflow: hidden;
-  animation: modalFadeIn 0.2s ease-out;
-}
-
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-    transform: scale(0.96);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 .modal-header {
   display: flex;
+  width: 100%;
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--modal-bg);
 }
 
 .modal-title {
@@ -194,12 +171,11 @@ const handleSubmit = () => {
 
 .modal-footer {
   display: flex;
+  width: 100%;
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 24px;
-  border-top: 1px solid var(--border-color);
-  background: var(--modal-bg);
 }
 
 .btn-cancel {

@@ -51,6 +51,7 @@ const orderSchema = yup.object({
     .nullable()
     .required("Rate is required")
     .positive("Rate must be greater than 0"),
+  status: yup.string().default("Pending").required("Status is required"),
   remarks: yup.string().nullable().optional(),
 });
 
@@ -69,6 +70,7 @@ const {
     party_name: "",
     quantity: "",
     rate: "",
+    status: "Pending",
     remarks: "",
   },
 });
@@ -78,16 +80,8 @@ const [labdip_no, labdip_noProps] = defineField("labdip_no");
 const [party_name, party_nameProps] = defineField("party_name");
 const [quantity, quantityProps] = defineField("quantity");
 const [rate, rateProps] = defineField("rate");
+const [status, statusProps] = defineField("status");
 const [remarks, remarksProps] = defineField("remarks");
-
-const calculatedTotal = computed(() => {
-  const q = Number(quantity.value) || 0;
-  const r = Number(rate.value) || 0;
-  return (q * r).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
-});
 
 onMounted(() => {
   if (partyStore.parties.length === 0) {
@@ -106,6 +100,7 @@ const resetForm = () => {
       party_name: props.order.party_name || "",
       quantity: props.order.quantity ?? "",
       rate: props.order.rate ?? "",
+      status: props.order.status || "Pending",
       remarks: props.order.remarks || "",
     });
   } else if (props.labdip) {
@@ -118,6 +113,7 @@ const resetForm = () => {
         party_name: props.labdip.party_name || "",
         quantity: "",
         rate: "",
+        status: "Pending",
         remarks: "",
       },
     });
@@ -131,6 +127,7 @@ const resetForm = () => {
         party_name: "",
         quantity: "",
         rate: "",
+        status: "Pending",
         remarks: "",
       },
     });
@@ -164,6 +161,7 @@ const onSubmit = handleSubmit(async (data) => {
     party_name: data.party_name,
     quantity: Number(data.quantity),
     rate: Number(data.rate),
+    status: data.status || "Pending",
     remarks: data.remarks || "",
   };
 
@@ -278,12 +276,23 @@ const onSubmit = handleSubmit(async (data) => {
           <span v-if="errors.rate" class="field-error">{{ errors.rate }}</span>
         </div>
 
-        <!-- Total Amount Calculation Display -->
+        <!-- Status -->
         <div class="form-group full-width">
-          <div class="total-banner">
-            <span>Total Calculated Amount:</span>
-            <strong class="total-amount">${{ calculatedTotal }}</strong>
-          </div>
+          <label for="order_status">Order Status *</label>
+          <select
+            id="order_status"
+            v-model="status"
+            v-bind="statusProps"
+            class="form-control"
+            :class="{ 'input-error': errors.status }"
+          >
+            <option value="Pending">Pending</option>
+            <option value="Processing">Processing</option>
+            <option value="Dispatched">Dispatched</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+          <span v-if="errors.status" class="field-error">{{ errors.status }}</span>
         </div>
 
         <!-- Remarks -->
