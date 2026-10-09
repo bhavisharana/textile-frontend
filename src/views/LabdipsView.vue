@@ -5,6 +5,7 @@ import Column from 'primevue/column'
 import { FilterService } from '@primevue/core/api'
 import LabdipFormModal from '../components/Labdip/LabdipFormModal.vue'
 import OrderFormModal from '../components/Order/OrderFormModal.vue'
+import CreateButton from '../components/common/CreateButton.vue'
 import { useLabdipStore } from '../stores/labdip.js'
 import { useQualityStore } from '../stores/quality.js'
 import { usePartyStore } from '../stores/party.js'
@@ -235,10 +236,7 @@ const handleExportExcel = () => {
         <h1 class="page-title">Labdip Entries</h1>
         <p class="page-subtitle">Manage labdip tracking, party details, quality & color specifications</p>
       </div>
-      <button class="btn-primary" @click="openAddModal">
-        <i class="pi pi-plus"></i>
-        New Labdip Entry
-      </button>
+      <CreateButton label="New Labdip Entry" @click="openAddModal" />
     </div>
 
     <!-- Alert Error -->
@@ -271,7 +269,6 @@ const handleExportExcel = () => {
           :rowsPerPageOptions="[5, 10, 20, 50]"
           responsiveLayout="scroll"
           dataKey="id"
-          class="custom-datatable"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           currentPageReportTemplate="{first} to {last} of {totalRecords} entries"
         >
@@ -566,26 +563,6 @@ const handleExportExcel = () => {
   color: var(--text-muted);
   font-size: 0.9rem;
   margin: 0;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: var(--primary);
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  background: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
 .btn-secondary {

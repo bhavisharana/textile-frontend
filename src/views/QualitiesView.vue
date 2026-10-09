@@ -4,6 +4,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import QualityFormModal from '../components/Quality/QualityFormModal.vue'
 import ConfirmationDialog from '../components/common/ConfirmationDialog.vue'
+import CreateButton from '../components/common/CreateButton.vue'
 import { useQualityStore } from '../stores/quality'
 
 const qualityStore = useQualityStore()
@@ -60,10 +61,7 @@ const handleDeleteConfirm = async () => {
         <h1 class="page-title">Quality Master</h1>
         <p class="page-subtitle">Manage fabric qualities and quality codes</p>
       </div>
-      <button class="btn-primary" @click="openAddModal">
-        <i class="pi pi-plus"></i>
-        Add Quality
-      </button>
+      <CreateButton label="Add Quality" @click="openAddModal" />
     </div>
 
     <!-- Alert Error -->
@@ -86,7 +84,7 @@ const handleDeleteConfirm = async () => {
         </svg>
         <h3>No Qualities Found</h3>
         <p>Get started by adding your first quality master entry.</p>
-        <button class="btn-secondary" @click="openAddModal">Add Quality</button>
+        <CreateButton label="Add Quality" @click="openAddModal" />
       </div>
 
       <div v-else class="table-responsive">
@@ -99,7 +97,6 @@ const handleDeleteConfirm = async () => {
           :rowsPerPageOptions="[5, 10, 20, 50]"
           responsiveLayout="scroll"
           dataKey="id"
-          class="custom-datatable"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           currentPageReportTemplate="{first} to {last} of {totalRecords} entries"
         >
@@ -220,43 +217,6 @@ const handleDeleteConfirm = async () => {
   color: var(--text-muted);
   font-size: 0.9rem;
   margin: 0;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: var(--primary);
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  background: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
-}
-
-.btn-secondary {
-  padding: 10px 18px;
-  background: var(--btn-sec-bg);
-  color: var(--btn-sec-text);
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 8px;
-  border: 1px solid var(--btn-sec-border);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-secondary:hover {
-  background: var(--btn-sec-hover-bg);
-  color: var(--btn-sec-hover-text);
 }
 
 .card {

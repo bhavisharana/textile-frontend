@@ -1,5 +1,5 @@
 <script setup>
-import { defineProps, defineEmits } from "vue";
+import { ref, defineProps, defineEmits } from "vue";
 import Dialog from "primevue/dialog";
 
 const props = defineProps({
@@ -37,11 +37,35 @@ const props = defineProps({
   },
   closeOnBackdrop: {
     type: Boolean,
-    default: true,
+    default: false,
   },
 });
 
 const emit = defineEmits(["update:isOpen", "close", "submit"]);
+
+const isPopping = ref(false);
+let popTimeout = null;
+
+const triggerPopEffect = () => {
+  isPopping.value = false;
+  if (popTimeout) clearTimeout(popTimeout);
+
+  setTimeout(() => {
+    isPopping.value = true;
+    popTimeout = setTimeout(() => {
+      isPopping.value = false;
+    }, 200);
+  }, 10);
+};
+
+const handleMaskClick = (event) => {
+  if (event && event.target && event.target.closest(".p-dialog")) {
+    return;
+  }
+  if (!props.closeOnBackdrop) {
+    triggerPopEffect();
+  }
+};
 
 const closeModal = () => {
   emit("update:isOpen", false);
@@ -50,7 +74,11 @@ const closeModal = () => {
 
 const handleVisibilityChange = (visible) => {
   if (!visible) {
-    closeModal();
+    if (!props.closeOnBackdrop) {
+      triggerPopEffect();
+    } else {
+      closeModal();
+    }
   }
 };
 
@@ -68,15 +96,21 @@ const handleSubmit = () => {
     :closable="false"
     :style="{ width: '100%', maxWidth }"
     :pt="{
-      mask: { class: '!bg-[var(--modal-overlay)] !backdrop-blur-sm' },
+      mask: {
+        class: '!bg-[var(--modal-overlay)] !backdrop-blur-sm',
+        onClick: handleMaskClick,
+      },
       root: {
-        class:
+        class: [
           '!max-h-[90vh] !overflow-hidden !rounded-xl !border !border-[var(--border-color)] !bg-[var(--modal-bg)] !shadow-2xl',
+          isPopping ? 'modal-pop-effect' : '',
+        ],
       },
       header: { class: '!border-0 !bg-[var(--modal-bg)] !p-0' },
       content: { class: '!bg-[var(--modal-bg)] !p-0' },
       footer: { class: '!border-0 !bg-[var(--modal-bg)] !p-0' },
     }"
+    @mask-click="handleMaskClick"
     @update:visible="handleVisibilityChange"
   >
     <template #header>
@@ -121,6 +155,26 @@ const handleSubmit = () => {
   </Dialog>
 </template>
 
+<style>
+/* Modal Pop Animation */
+@keyframes modal-pop {
+  0%, 100% {
+    transform: perspective(1000px) scale3d(1, 1, 1);
+  }
+  50% {
+    transform: perspective(1000px) scale3d(1.02, 1.02, 1);
+  }
+}
+
+.modal-pop-effect {
+  animation: modal-pop 0.2s ease-in-out !important;
+  transition: none !important;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+</style>
+
 <style scoped>
 .modal-header {
   display: flex;
@@ -128,6 +182,7 @@ const handleSubmit = () => {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
+  border-bottom: 1px solid var(--border-color);
 }
 
 .modal-title {
@@ -176,6 +231,7 @@ const handleSubmit = () => {
   justify-content: flex-end;
   gap: 12px;
   padding: 16px 24px;
+  border-top: 1px solid var(--border-color);
 }
 
 .btn-cancel {

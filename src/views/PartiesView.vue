@@ -4,6 +4,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import PartyFormModal from '../components/Parties/PartyFormModal.vue'
 import ConfirmationDialog from '../components/common/ConfirmationDialog.vue'
+import CreateButton from '../components/common/CreateButton.vue'
 import { usePartyStore } from '../stores/party'
 
 const partyStore = usePartyStore()
@@ -60,10 +61,7 @@ const handleDeleteConfirm = async () => {
         <h1 class="page-title">Party Master</h1>
         <p class="page-subtitle">Manage client and vendor party profiles & unique codes</p>
       </div>
-      <button class="btn-primary" @click="openAddModal">
-        <i class="pi pi-plus"></i>
-        Add Party
-      </button>
+      <CreateButton label="Add Party" @click="openAddModal" />
     </div>
 
     <!-- Alert Error -->
@@ -95,7 +93,6 @@ const handleDeleteConfirm = async () => {
           :rowsPerPageOptions="[5, 10, 20, 50]"
           responsiveLayout="scroll"
           dataKey="id"
-          class="custom-datatable"
           paginatorTemplate="RowsPerPageDropdown FirstPageLink PrevPageLink CurrentPageReport NextPageLink LastPageLink"
           currentPageReportTemplate="{first} to {last} of {totalRecords} entries"
         >
@@ -210,26 +207,6 @@ const handleDeleteConfirm = async () => {
   color: var(--text-muted);
   font-size: 0.9rem;
   margin: 0;
-}
-
-.btn-primary {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: var(--primary);
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 0.9rem;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-primary:hover {
-  background: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
 }
 
 .btn-secondary {
