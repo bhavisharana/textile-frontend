@@ -5,6 +5,7 @@ import Column from "primevue/column";
 import OrderFormModal from "../components/Order/OrderFormModal.vue";
 import ConfirmationDialog from "../components/common/ConfirmationDialog.vue";
 import CreateButton from "../components/common/CreateButton.vue";
+import ExportExcelDialog from "../components/common/ExportExcelDialog.vue";
 import { useOrderStore } from "../stores/order.js";
 
 const orderStore = useOrderStore();
@@ -114,6 +115,11 @@ const getStatusIcon = (status) => {
     default:
       return "pi pi-circle";
   }
+};
+
+const showExportDialog = ref(false);
+const openExportDialog = () => {
+  showExportDialog.value = true;
 };
 </script>
 
@@ -292,22 +298,34 @@ const getStatusIcon = (status) => {
                 </span>
                 <span class="count-badge">{{ filteredOrders.length }}</span>
               </div>
-              <div class="search-box">
-                <i class="pi pi-search search-icon"></i>
-                <input
-                  v-model="filters['global'].value"
-                  type="text"
-                  placeholder="Search orders, parties, labdips..."
-                  class="search-input"
-                />
+              <div class="header-right" style="display: flex; gap: 12px; align-items: center;">
+                <div class="search-box">
+                  <i class="pi pi-search search-icon"></i>
+                  <input
+                    v-model="filters['global'].value"
+                    type="text"
+                    placeholder="Search orders, parties, labdips..."
+                    class="search-input"
+                  />
+                  <button
+                    v-if="filters['global'].value"
+                    class="search-clear-btn"
+                    @click="filters['global'].value = ''"
+                    title="Clear search"
+                    type="button"
+                  >
+                    <i class="pi pi-times"></i>
+                  </button>
+                </div>
                 <button
-                  v-if="filters['global'].value"
-                  class="search-clear-btn"
-                  @click="filters['global'].value = ''"
-                  title="Clear search"
+                  class="btn-export"
+                  @click="openExportDialog"
+                  :disabled="orderStore.orders.length === 0"
+                  title="Export to Excel spreadsheet"
                   type="button"
                 >
-                  <i class="pi pi-times"></i>
+                  <i class="pi pi-file-excel"></i>
+                  <span>Export Excel</span>
                 </button>
               </div>
             </div>
@@ -410,34 +428,13 @@ const getStatusIcon = (status) => {
       @confirm="handleDeleteConfirm"
       @close="orderToDelete = null"
     />
+
+    <!-- Export Excel Dialog -->
+    <ExportExcelDialog v-model:is-open="showExportDialog" default-type="orders" />
   </div>
 </template>
 
 <style scoped>
-.page-container {
-  margin: 0 auto;
-}
-
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
-}
-
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0 0 4px 0;
-}
-
-.page-subtitle {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  margin: 0;
-}
-
 /* KPI Summary Cards Grid */
 .kpi-grid {
   display: grid;
@@ -583,325 +580,13 @@ const getStatusIcon = (status) => {
   border-color: #dc2626;
 }
 
-/* Table Card */
-.card {
-  background: var(--bg-card);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-  overflow: hidden;
-  transition:
-    background-color 0.3s ease,
-    border-color 0.3s ease;
-}
-
-.loading-state,
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px;
-  color: var(--text-muted);
-  gap: 12px;
-}
-
-.empty-state h3 {
-  margin: 8px 0 4px;
-  color: var(--text-primary);
-  font-size: 1.1rem;
-}
-
-.table-responsive {
-  width: 100%;
-  overflow-x: auto;
-}
-
-/* Table Header Toolbar */
-.table-header-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border-color);
-  background: var(--bg-card);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.table-header-title {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-}
-
-.count-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2px 8px;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 9999px;
-  background: var(--bg-surface);
-  color: var(--text-muted);
-  border: 1px solid var(--border-color);
-}
-
-.search-box {
-  position: relative;
-  display: flex;
-  align-items: center;
-  min-width: 280px;
-}
-
-.search-icon {
-  position: absolute;
-  left: 12px;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  pointer-events: none;
-}
-
-.search-input {
-  width: 100%;
-  padding: 8px 34px 8px 34px;
-  border-radius: 8px;
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  color: var(--input-text);
-  font-size: 0.875rem;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
-.search-input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
-}
-
-.search-clear-btn {
-  position: absolute;
-  right: 10px;
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  border-radius: 4px;
-}
-
-.search-clear-btn:hover {
-  color: var(--text-primary);
-}
-
-.empty-filter-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 36px 16px;
-  color: var(--text-muted);
-  gap: 10px;
-  font-size: 0.9rem;
-}
-
-/* Status Badges */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  font-size: 0.78rem;
-  font-weight: 600;
-  white-space: nowrap;
-}
-
-.badge-pending {
-  background: var(--status-pending-bg);
-  color: var(--status-pending-text);
-}
-
-.badge-processing {
-  background: var(--status-processing-bg);
-  color: var(--status-processing-text);
-}
-
-.badge-dispatched {
-  background: var(--status-dispatched-bg);
-  color: var(--status-dispatched-text);
-}
-
-.badge-delivered {
-  background: var(--status-delivered-bg);
-  color: var(--status-delivered-text);
-}
-
-.badge-cancelled {
-  background: var(--status-cancelled-bg);
-  color: var(--status-cancelled-text);
-}
-
-/* Custom PrimeVue DataTable Theming */
-:deep(.p-datatable) {
-  font-size: 0.875rem;
-}
-
-:deep(.p-datatable-header) {
-  padding: 0;
-  background: transparent;
-  border: none;
-}
-
-:deep(.p-datatable-table) {
-  border-collapse: collapse;
-  width: 100%;
-}
-
-:deep(.p-datatable-thead > tr > th) {
-  background: var(--table-th-bg);
-  color: var(--table-th-text);
-  font-weight: 600;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border-color);
-  text-transform: uppercase;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-
-:deep(.p-datatable-tbody > tr > td) {
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--table-td-border);
-  color: var(--text-secondary);
-  white-space: nowrap;
-}
-
-:deep(.p-datatable-tbody > tr:hover) {
-  background: var(--table-hover) !important;
-}
-
-:deep(.p-paginator) {
-  background: var(--bg-card);
-  border-top: 1px solid var(--border-color);
-  padding: 12px 18px;
-  color: var(--text-secondary);
-  gap: 4px;
-}
-
-:deep(.p-paginator-page.p-paginator-page-selected) {
-  background: var(--primary) !important;
-  color: #ffffff !important;
-  font-weight: 700;
-}
-
 .id-tag {
   color: var(--primary);
   font-weight: 700;
-  font-size: 0.825rem;
-  font-family: monospace;
-}
-
-.labdip-no-badge {
-  display: inline-block;
-  padding: 3px 8px;
-  background: var(--bg-surface);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-weight: 700;
-  font-size: 0.825rem;
-  font-family: monospace;
-}
-
-.font-semibold {
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.font-mono {
-  font-family: monospace;
 }
 
 .total-cell {
   color: var(--primary);
   font-weight: 700;
-}
-
-.text-muted {
-  color: var(--text-muted);
-}
-
-.action-buttons {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-}
-
-.btn-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  border: 1px solid var(--btn-icon-border);
-  background: var(--btn-icon-bg);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-icon-edit {
-  color: #3b82f6;
-}
-
-.btn-icon-edit:hover {
-  background: rgba(59, 130, 246, 0.15);
-  border-color: rgba(59, 130, 246, 0.4);
-}
-
-.btn-icon-delete {
-  color: #ef4444;
-}
-
-.btn-icon-delete:hover {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: rgba(239, 68, 68, 0.4);
-}
-
-.alert-error {
-  background: rgba(239, 68, 68, 0.12);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  color: #fca5a5;
-  padding: 12px 16px;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  margin-bottom: 20px;
-}
-
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #ffffff;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 </style>

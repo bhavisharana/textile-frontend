@@ -186,17 +186,6 @@ const navigateTo = (path) => {
           Welcome back, {{ authStore.user?.username || 'Admin' }}!
         </h1>
       </div>
-
-      <div class="hero-actions">
-        <button class="btn-hero btn-hero-primary" @click="navigateTo('/orders')">
-          <i class="pi pi-plus"></i>
-          New Order
-        </button>
-        <button class="btn-hero btn-hero-outline" @click="navigateTo('/labdips')">
-          <i class="pi pi-flask"></i>
-          New Labdip
-        </button>
-      </div>
     </div>
 
     <!-- Error Alert -->

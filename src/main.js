@@ -7,6 +7,7 @@ import router from './router'
 import 'primeicons/primeicons.css'
 import './assets/tailwind.css'
 import './style.css'
+import './assets/views.css'
 import App from './App.vue'
 
 const app = createApp(App)
